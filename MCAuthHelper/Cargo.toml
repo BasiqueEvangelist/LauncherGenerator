@@ -1,5 +1,5 @@
 [package]
-name = "mclaunch-authhelper"
+name = "mcauthhelper"
 version = "0.1.0"
 authors = ["Nikolay Kochulin <porez0xfeedface@gmail.com>"]
 edition = "2018"

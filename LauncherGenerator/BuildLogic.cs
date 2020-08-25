@@ -8,7 +8,7 @@ using Mono.Unix;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace MCLaunch
+namespace LauncherGenerator
 {
     public static class BuildLogic
     {
@@ -141,7 +141,7 @@ namespace MCLaunch
                     ["version_type"] = Enum.GetName(typeof(VersionType), v.Type),
                     ["classpath"] = Classpath(vm),
                     ["natives_directory"] = "../../versions/" + t.VersionID + "/natives",
-                    ["launcher_name"] = "mclaunch",
+                    ["launcher_name"] = "LauncherGenerator",
                     ["launcher_version"] = "0.1a",
                     ["path"] = vm.LoggingSettings.ContainsKey("client") ? "../../assets/log_configs/" + ((RemoteFile)vm.LoggingSettings["client"].File).Name : ""
                 };
@@ -163,7 +163,7 @@ namespace MCLaunch
                     }
                     sw.WriteLine("cd profiles/" + t.From.Profile);
                     var ahline =
-                     (Environment.OSVersion.Platform == PlatformID.Win32NT ? "..\\..\\mclaunch-authhelper.exe " : "../../mclaunch-authhelper ") + cfg.Username + " ";
+                     (Environment.OSVersion.Platform == PlatformID.Win32NT ? "..\\..\\mcauthhelper.exe " : "../../mcauthhelper ") + cfg.Username + " ";
                     sw.WriteLine(ahline + t.From.JavaPath.Replace("\\", "\\\\") + " " + GameArguments.FoldArgs(cargs));
                     // sw.WriteLine("pause");
                 }
@@ -177,9 +177,9 @@ namespace MCLaunch
 
             var assembly = typeof(Program).Assembly;
             var exename = Environment.OSVersion.Platform != PlatformID.Win32NT
-                    ? "mclaunch-authhelper"
-                    : "mclaunch-authhelper.exe";
-            using (Stream exampleIn = assembly.GetManifestResourceStream("MCLaunch." + exename))
+                    ? "mcauthhelper"
+                    : "mcauthhelper.exe";
+            using (Stream exampleIn = assembly.GetManifestResourceStream("LauncherGenerator." + exename))
             using (FileStream exampleOut = File.Open("data/" + exename, FileMode.Create, FileAccess.Write, FileShare.Delete))
                 await exampleIn.CopyToAsync(exampleOut);
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)

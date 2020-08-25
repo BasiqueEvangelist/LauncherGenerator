@@ -22,18 +22,18 @@
   <Choose>
     <When Condition="'$(OS.Substring(0,3))' == 'Win'">
       <ItemGroup>
-        <EmbeddedResource Include="$(ProjectDir)/../MCLaunchAuthHelper/target/release/mclaunch-authhelper.exe" />
+        <EmbeddedResource Include="$(ProjectDir)/../MCAuthHelper/target/release/mcauthhelper.exe" />
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
-        <EmbeddedResource Include="$(ProjectDir)/../MCLaunchAuthHelper/target/release/mclaunch-authhelper" />
+        <EmbeddedResource Include="$(ProjectDir)/../MCAuthHelper/target/release/mcauthhelper" />
       </ItemGroup>
     </Otherwise>
   </Choose>
   
   <Target Name="BuildMCAH" BeforeTargets="BeforeBuild">
-    <Message Importance="high" Text="Building MCLaunchAuthHelper" />
-    <Exec WorkingDirectory="$(ProjectDir)/../MCLaunchAuthHelper" Command="cargo build --release" />
+    <Message Importance="high" Text="Building MCAuthHelper" />
+    <Exec WorkingDirectory="$(ProjectDir)/../MCAuthHelper" Command="cargo build --release" />
   </Target>
 </Project>

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using IniParser.Model;
 
-namespace MCLaunch
+namespace LauncherGenerator
 {
     public class Config
     {

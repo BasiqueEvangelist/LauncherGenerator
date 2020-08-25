@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MCApi;
 
-namespace MCLaunch
+namespace LauncherGenerator
 {
     public static class GCLogic
     {

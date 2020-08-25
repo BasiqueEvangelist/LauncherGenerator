@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace MCLaunch
+namespace LauncherGenerator
 {
     public interface ITargetTransformer
     {

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using MCApi;
 using Newtonsoft.Json;
 
-namespace MCLaunch
+namespace LauncherGenerator
 {
     public class LocalVersionResolver : IVersionResolver
     {

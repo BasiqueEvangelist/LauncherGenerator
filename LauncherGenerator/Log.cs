@@ -1,6 +1,6 @@
 using System.Threading;
 using System;
-namespace MCLaunch
+namespace LauncherGenerator
 {
     public static class Log
     {

@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.539
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MCApi", "MCApi\MCApi.csproj", "{66485772-0127-4D83-83D6-884DDFA21D00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MCLaunch", "MCLaunch\MCLaunch.csproj", "{E7207FFB-5184-405F-AFA9-96FF02324D7C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LauncherGenerator", "LauncherGenerator\LauncherGenerator.csproj", "{E7207FFB-5184-405F-AFA9-96FF02324D7C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

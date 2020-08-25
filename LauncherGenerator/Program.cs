@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using IniParser;
 using MCApi;
 
-namespace MCLaunch
+namespace LauncherGenerator
 {
     class Program
     {
@@ -15,7 +15,7 @@ namespace MCLaunch
             if (!File.Exists("mc.ini"))
             {
                 var assembly = typeof(Program).Assembly;
-                using (Stream exampleIn = assembly.GetManifestResourceStream("MCLaunch.mc-example.ini"))
+                using (Stream exampleIn = assembly.GetManifestResourceStream("LauncherGenerator.mc-example.ini"))
                 using (FileStream exampleOut = File.OpenWrite("mc.ini"))
                     await exampleIn.CopyToAsync(exampleOut);
             }

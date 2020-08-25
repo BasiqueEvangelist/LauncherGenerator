@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using MCApi.Fabric;
 using Newtonsoft.Json;
 
-namespace MCLaunch
+namespace LauncherGenerator
 {
     public class FabricTransformer : ITargetTransformer
     {
