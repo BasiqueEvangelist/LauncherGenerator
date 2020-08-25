@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+	    <LangVersion>8.0</LangVersion>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PreBuildEventUseInBuild>true/</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ini-parser" Version="2.5.2" />
+    <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
+    <PackageReference Include="System.Interactive.Async" Version="4.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MCApi\MCApi.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="mc.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <EmbeddedResource Include="mc-example.ini" />
+  </ItemGroup>
+  <Choose>
+    <When Condition="'$(OS.Substring(0,3))' == 'Win'">
+      <ItemGroup>
+        <EmbeddedResource Include="$(ProjectDir)/../MCLaunchAuthHelper/target/release/mclaunch-authhelper.exe" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <EmbeddedResource Include="$(ProjectDir)/../MCLaunchAuthHelper/target/release/mclaunch-authhelper" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+  
+  <Target Name="BuildMCAH" BeforeTargets="BeforeBuild">
+    <Message Importance="high" Text="Building MCLaunchAuthHelper" />
+    <Exec WorkingDirectory="$(ProjectDir)/../MCLaunchAuthHelper" Command="cargo build --release" />
+  </Target>
+</Project>

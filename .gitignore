@@ -1,0 +1,10 @@
+.vs
+.vscode
+**/*.csproj.user
+**/bin
+**/obj
+MCLaunch/data
+MCLaunch/*.sh
+MCLaunch/mc.ini
+
+**/target
