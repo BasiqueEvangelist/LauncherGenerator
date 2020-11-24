@@ -122,19 +122,16 @@ fn main() -> Result<()> {
         );
     }
     println!("[MCAH] Starting Minecraft!");
+    let mut proc = std::process::Command::new(&args[2]);
+    proc.args(args.into_iter().skip(3));
     #[cfg(unix)]
     {
-        Err(exec::Command::new(&args[2])
-            .args(&args.into_iter().skip(3).collect::<Vec<_>>())
-            .exec())
-        .with_context(|| "couldn't start minecraft")?
+        use std::os::unix::process::CommandExt;
+        Err(proc.exec()).with_context(|| "couldn't start minecraft")?
     }
     #[cfg(not(unix))]
     {
-        std::process::Command::new(&args[2])
-            .args(args.into_iter().skip(3))
-            .status()
-            .with_context(|| "couldn't start minecraft")?;
+        proc.status().with_context(|| "couldn't start minecraft")?;
         Ok(())
     }
 }
