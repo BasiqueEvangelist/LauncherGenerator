@@ -1,5 +1,7 @@
 using Newtonsoft.Json;
 
+#nullable disable
+
 namespace MCApi.Fabric
 {
     public class LoaderVersion

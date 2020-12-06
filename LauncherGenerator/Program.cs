@@ -15,7 +15,7 @@ namespace LauncherGenerator
             if (!File.Exists("mc.ini"))
             {
                 var assembly = typeof(Program).Assembly;
-                using (Stream exampleIn = assembly.GetManifestResourceStream("LauncherGenerator.mc-example.ini"))
+                using (Stream exampleIn = assembly.GetManifestResourceStream("LauncherGenerator.mc-example.ini") ?? throw new NotImplementedException())
                 using (FileStream exampleOut = File.OpenWrite("mc.ini"))
                     await exampleIn.CopyToAsync(exampleOut);
             }

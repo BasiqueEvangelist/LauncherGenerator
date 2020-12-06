@@ -9,12 +9,12 @@ namespace MCApi
 {
     public static partial class VersionManifestExtensions
     {
-        public static Task DownloadObjects(this IEnumerable<AssetIndexObject> objects, string folder, Action<bool, AssetIndexObject> onload = null)
+        public static Task DownloadObjects(this IEnumerable<AssetIndexObject> objects, string folder, Action<bool, AssetIndexObject>? onload = null)
         {
             return objects.DownloadGenericFiles(x => new string[] { Path.Combine(folder, getParts(x.Hash)) }, onload);
         }
 
-        public static Task DownloadObjectsFlat(this IEnumerable<AssetIndexObject> objects, string folder, Action<bool, AssetIndexObject> onload = null)
+        public static Task DownloadObjectsFlat(this IEnumerable<AssetIndexObject> objects, string folder, Action<bool, AssetIndexObject>? onload = null)
         {
             return objects.DownloadGenericFiles(x => x.Paths.Select(y => Path.Combine(folder, y)).ToArray(), onload);
         }

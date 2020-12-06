@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
+#nullable disable
+
 namespace MCApi
 {
     #region Yggdrasil

@@ -14,8 +14,8 @@ namespace MCApi
     {
         internal static ConcurrentDictionary<string, Lazy<Task<VersionManifest>>> manifestCache = new ConcurrentDictionary<string, Lazy<Task<VersionManifest>>>();
         internal ConcurrentDictionary<string, Lazy<Task<AssetGroupIndex>>> aIndexCache = new ConcurrentDictionary<string, Lazy<Task<AssetGroupIndex>>>();
-        private bool initted = false;
-        private MCVersion[] versions;
+
+        private MCVersion[]? versions;
         private IVersionResolver resolver;
 
         public MCDownload(IVersionResolver resolver)
@@ -52,14 +52,13 @@ namespace MCApi
         #region Interface
         public async Task Init()
         {
-            if (initted) return;
+            if (versions != null) return;
             versions = (await resolver.GetAllVersions()).Select(x => new MCVersion(x, this)).ToArray();
-            initted = true;
         }
 
         public MCVersion[] RemoteVersions()
         {
-            if (!initted) throw new MCDownloadException("MCDownload isn't initialized!");
+            if (versions == null) throw new MCDownloadException("MCDownload isn't initialized!");
             return versions;
         }
 
@@ -91,7 +90,7 @@ namespace MCApi
         public Task<VersionManifest> GetManifest() => downloader.getManifestFor(this);
         public DateTime Time => DescribedBy.Time;
         public DateTime ReleaseTime => DescribedBy.ReleaseTime;
-     
+
 
         public override bool Equals(object obj)
         {

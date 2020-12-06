@@ -22,7 +22,7 @@ namespace MCApi
             Arguments = s.Select(x =>
             {
                 if (x.Type == JTokenType.String)
-                    return new GameArgument() { Value = x.ToObject<string>() };
+                    return new GameArgument(x.ToObject<string>());
                 else
                     return new GameArgument(x.ToObject<ComplexArgument>());
             }).ToArray();
@@ -67,32 +67,32 @@ namespace MCApi
         {
             if (arg.Value.Type == JTokenType.String)
             {
-                Value = arg.Value.ToObject<string>();
-                ComplexValue = null;
+                simpleValue = arg.Value.ToObject<string>();
+                complexValue = null;
             }
             else
             {
-                ComplexValue = new GameArguments(arg.Value.ToObject<JToken[]>());
-                Value = null;
+                complexValue = new GameArguments(arg.Value.ToObject<JToken[]>());
+                simpleValue = null;
             }
             Rules = arg.Rules == null ? new MCRule[0] : arg.Rules;
         }
         public GameArgument(string s)
         {
             Rules = new MCRule[0];
-            ComplexValue = null;
-            Value = s;
+            complexValue = null;
+            simpleValue = s;
         }
-        public string Value;
-        public GameArguments ComplexValue;
-        public bool IsComplex => Value == null;
+        private string? simpleValue;
+        private GameArguments? complexValue;
         public MCRule[] Rules;
         public string[] Process(IDictionary<string, string> variables, string[] features)
         {
             if (!IsRequired(features))
                 return Array.Empty<string>();
-            if (IsComplex) return ComplexValue.Process(variables, features);
-            else return new string[] { Value };
+            if (complexValue != null) return complexValue.Process(variables, features);
+            else if (simpleValue != null) return new string[] { simpleValue };
+            else throw new NotImplementedException();
         }
         public bool IsRequired(string[] features)
         {

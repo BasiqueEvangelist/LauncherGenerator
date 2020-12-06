@@ -46,11 +46,7 @@ namespace MCApi
         }
         public static Task<WrappingResourceHolder<Stream>> Open(string url) => Open(new Uri(url));
         public static async Task<WrappingResourceHolder<Stream>> Open(Uri url)
-        {
-            var holder = await VariableResourceManager.NetworkConnections.WrapWait<Stream>();
-            holder.Value = await client.GetStreamAsync(url);
-            return holder;
-        }
+         => await VariableResourceManager.NetworkConnections.WrapWait<Stream>(() => client.GetStreamAsync(url));
         #endregion
         #region POST
         public static Task<TResponse> PostYggdrasil<TResponse, TRequest>(string url, TRequest data) => PostYggdrasil<TResponse, TRequest>(new Uri(url), data);

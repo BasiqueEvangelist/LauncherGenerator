@@ -26,10 +26,10 @@ namespace MCApi
 
         internal void Release() { semaphore.Release(); }
 
-        public async Task<WrappingResourceHolder<T>> WrapWait<T>()
+        public async Task<WrappingResourceHolder<T>> WrapWait<T>(Func<Task<T>> action)
         {
             await semaphore.WaitAsync();
-            return new WrappingResourceHolder<T>(this);
+            return new WrappingResourceHolder<T>(this, await action());
         }
     }
 
@@ -50,10 +50,9 @@ namespace MCApi
 
     public class WrappingResourceHolder<T> : ResourceHolder
     {
-        protected T value;
-
-        public WrappingResourceHolder(VariableResourceManager mgr) : base(mgr)
+        public WrappingResourceHolder(VariableResourceManager mgr, T value) : base(mgr)
         {
+            this.Value = value;
         }
 
         public T Value { get; set; }

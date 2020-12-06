@@ -4,6 +4,7 @@
 	    <LangVersion>8.0</LangVersion>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PreBuildEventUseInBuild>true/</PreBuildEventUseInBuild>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="ini-parser" Version="2.5.2" />

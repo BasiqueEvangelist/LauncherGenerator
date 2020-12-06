@@ -36,7 +36,8 @@ namespace LauncherGenerator
                     .DistinctBy(x => x.Client)
                     .Select(async x =>
                     {
-                        string path = "data/versions/" + x.JarFrom.ID + "/" + x.JarFrom.ID + ".jar";
+                        string jarId = x.JarFrom?.ID ?? x.ID;
+                        string path = "data/versions/" + jarId + "/" + jarId + ".jar";
                         if (await ((RemoteFile)x.Client).Save(new string[] { path }))
                             Log.FileNew(path);
                     })
@@ -139,7 +140,7 @@ namespace LauncherGenerator
                     ["auth_uuid"] = "@UUID",
                     ["auth_access_token"] = "@ACCESSTOKEN",
                     ["user_type"] = "mojang",
-                    ["version_type"] = Enum.GetName(typeof(VersionType), v.Type),
+                    ["version_type"] = v.Type.ToString(),
                     ["classpath"] = Classpath(vm),
                     ["natives_directory"] = "../../versions/" + t.VersionID + "/natives",
                     ["launcher_name"] = "LauncherGenerator",
@@ -180,7 +181,7 @@ namespace LauncherGenerator
             var exename = Environment.OSVersion.Platform != PlatformID.Win32NT
                     ? "mcauthhelper"
                     : "mcauthhelper.exe";
-            using (Stream exampleIn = assembly.GetManifestResourceStream("LauncherGenerator." + exename))
+            using (Stream exampleIn = assembly.GetManifestResourceStream("LauncherGenerator." + exename) ?? throw new NotImplementedException())
             using (FileStream exampleOut = File.Open("data/" + exename, FileMode.Create, FileAccess.Write, FileShare.Delete))
                 await exampleIn.CopyToAsync(exampleOut);
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)
@@ -202,7 +203,8 @@ namespace LauncherGenerator
         static string Classpath(VersionManifest vm)
         {
             List<string> entr = vm.Libraries.Where(x => x.IsNeeded).SelectMany(x => x.NeededDownloads).Select(x => "../../libraries/" + x.Value.LibraryPath).ToList();
-            entr.Add("../../versions/" + vm.JarFrom.ID + "/" + vm.JarFrom.ID + ".jar");
+            string jarId = vm.JarFrom?.ID ?? vm.ID;
+            entr.Add("../../versions/" + jarId + "/" + jarId + ".jar");
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 return string.Join(";", entr);
             else

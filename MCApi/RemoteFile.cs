@@ -11,7 +11,7 @@ namespace MCApi
     public static partial class VersionManifestExtensions
     {
         /// Generic function for downloading any RemoteFile.
-        public static Task DownloadGenericFiles<TFile>(this IEnumerable<TFile> files, Func<TFile, string[]> pathFunc, Action<bool, TFile> onSave = null) where TFile : RemoteFile
+        public static Task DownloadGenericFiles<TFile>(this IEnumerable<TFile> files, Func<TFile, string[]> pathFunc, Action<bool, TFile>? onSave = null) where TFile : RemoteFile
         {
             return Task.WhenAll(files.Select(async x =>
             {

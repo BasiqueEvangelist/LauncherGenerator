@@ -32,20 +32,20 @@ namespace MCApi
         {
             get
             {
-                if (DescribedBy.InheritsFrom != null)
+                if (InheritsFrom != null)
                     return getLoadedVersionManifest(InheritsFrom).AssetGroup;
                 return new AssetGroup(DescribedBy.AssetGroup, downloader);
             }
         }
 
-        public MCVersion JarFrom => DescribedBy.JarFrom == null ? (InheritsFrom ?? downloader.GetRemoteVersion(ID)) : downloader.GetRemoteVersion(DescribedBy.JarFrom);
-        public MCVersion InheritsFrom => DescribedBy.InheritsFrom == null ? null : downloader.GetRemoteVersion(DescribedBy.InheritsFrom);
+        public MCVersion? JarFrom => DescribedBy.JarFrom == null ? InheritsFrom : downloader.GetRemoteVersion(DescribedBy.JarFrom);
+        public MCVersion? InheritsFrom => DescribedBy.InheritsFrom == null ? null : downloader.GetRemoteVersion(DescribedBy.InheritsFrom);
         public DescribedRemoteFile Client => getDownload("client");
         public DescribedRemoteFile Server => getDownload("server");
 
         private DescribedRemoteFile getDownload(string id)
         {
-            if (DescribedBy.JarFrom != null || DescribedBy.InheritsFrom != null)
+            if (JarFrom != null)
                 return getLoadedVersionManifest(JarFrom).getDownload(id);
             return new DescribedRemoteFile(DescribedBy.Downloads[id]);
         }
