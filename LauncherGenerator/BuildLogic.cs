@@ -17,6 +17,7 @@ namespace LauncherGenerator
             var libsToDownload = manifests
                 .SelectMany(x => x.Libraries)
                 .SelectMany(x => x.NeededDownloads)
+                .Where(x => x.Value.Url != null)
                 .Select(x => x.Value)
                 .Distinct()
                 .ToArray();

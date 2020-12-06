@@ -42,7 +42,7 @@ namespace MCApi
             {
                 foreach (var item in unprocessedNeededDownloads())
                 {
-                    if (item.Value.Url.ToString().Contains("maven"))
+                    if (item.Value.Url != null && item.Value.Url.ToString().Contains("maven"))
                         item.Value.Url = new Uri(item.Value.Url + new MavenCoords(Name).LibraryPath);
                     yield return item;
                 }
@@ -81,7 +81,10 @@ namespace MCApi
                     {
                         kvp = KeyValuePair.Create("artifact", new DescribedRemoteFile(DescribedBy.Downloads["artifact"].ToObject<RemoteFileDefinition>())); ;
                     }
-                    catch (JsonSerializationException) { yield break; } // Forge lol
+                    catch (JsonSerializationException)
+                    {
+                        yield break; // Forge lol
+                    }
                     yield return kvp;
                 }
                 if (DescribedBy.Downloads.ContainsKey("classifiers"))

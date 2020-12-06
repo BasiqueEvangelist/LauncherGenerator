@@ -281,7 +281,7 @@ namespace MCApi
     }
     public class RemoteFileDefinition
     {
-        [JsonProperty(PropertyName = "url", Required = Required.Always)]
+        [JsonProperty(PropertyName = "url", Required = Required.Default)]
         public Uri Url;
         [JsonProperty(PropertyName = "sha1", Required = Required.Default)]
         public string SHA1;
