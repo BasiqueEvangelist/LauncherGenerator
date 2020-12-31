@@ -159,7 +159,7 @@ namespace LauncherGenerator
                     }
                     else
                     {
-                        sw.WriteLine("#!/bin/bash");
+                        sw.WriteLine("#!/bin/sh");
                         sw.WriteLine("printf \"\\033]0;Minecraft " + t.VersionID + " launch script\\007\"");
                         sw.WriteLine("cd $(cd `dirname $0` && pwd)");
                     }
