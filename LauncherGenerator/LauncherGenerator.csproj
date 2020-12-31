@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
 	    <LangVersion>8.0</LangVersion>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netcoreapp5.0</TargetFramework>
     <PreBuildEventUseInBuild>true/</PreBuildEventUseInBuild>
     <Nullable>enable</Nullable>
   </PropertyGroup>
