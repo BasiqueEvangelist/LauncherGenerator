@@ -19,22 +19,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <EmbeddedResource Include="mc-example.ini" />
+    <EmbeddedResource Include="$(OutputPath)/../MCAuthHelper/LauncherGeneratorNeeded/*" />
   </ItemGroup>
-  <Choose>
-    <When Condition="'$(OS.Substring(0,3))' == 'Win'">
-      <ItemGroup>
-        <EmbeddedResource Include="$(ProjectDir)/../MCAuthHelper/target/release/mcauthhelper.exe" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <EmbeddedResource Include="$(ProjectDir)/../MCAuthHelper/target/release/mcauthhelper" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
-  
-  <Target Name="BuildMCAH" BeforeTargets="BeforeBuild">
-    <Message Importance="high" Text="Building MCAuthHelper" />
-    <Exec WorkingDirectory="$(ProjectDir)/../MCAuthHelper" Command="cargo build --release" />
-  </Target>
 </Project>
