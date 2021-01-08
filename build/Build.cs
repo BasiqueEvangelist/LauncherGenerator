@@ -7,6 +7,7 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
@@ -32,7 +33,6 @@ namespace LauncherGenerator.Build
 
         [Solution] readonly Solution Solution;
         [GitRepository] readonly GitRepository GitRepository;
-        [PathExecutable("cargo")] readonly Tool Cargo;
 
         AbsolutePath SourceDirectory => RootDirectory / "sources";
         AbsolutePath OutputDirectory => RootDirectory / "output";
@@ -69,7 +69,6 @@ namespace LauncherGenerator.Build
             {
                 var srcDir = SourceDirectory / "MCAuthHelper";
                 var targetDir = (RelativePath)Path.GetRelativePath(srcDir, OutputDirectory / "MCAuthHelper");
-                // Cargo($"build {releaseFlag} --target-dir {targetDir}", workingDirectory: srcDir, customLogger: (_, text) => Logger.Normal(text));
                 CargoTasks.CargoBuild(s => s
                     .SetRelease(Configuration == Configuration.Release)
                     .SetTargetDir(targetDir)
