@@ -10,3 +10,4 @@ sources/LauncherGenerator/*.sh
 sources/LauncherGenerator/mc.ini
 
 **/target
+*.Generated.cs

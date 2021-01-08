@@ -67,10 +67,13 @@ namespace LauncherGenerator.Build
         Target CompileMCAH => _ => _
             .Executes(() =>
             {
-                var releaseFlag = Configuration == Configuration.Release ? "--release" : "";
                 var srcDir = SourceDirectory / "MCAuthHelper";
                 var targetDir = (RelativePath)Path.GetRelativePath(srcDir, OutputDirectory / "MCAuthHelper");
-                Cargo($"build {releaseFlag} --target-dir {targetDir}", workingDirectory: srcDir, customLogger: (_, text) => Logger.Normal(text));
+                // Cargo($"build {releaseFlag} --target-dir {targetDir}", workingDirectory: srcDir, customLogger: (_, text) => Logger.Normal(text));
+                CargoTasks.CargoBuild(s => s
+                    .SetRelease(Configuration == Configuration.Release)
+                    .SetTargetDir(targetDir)
+                    .SetProcessWorkingDirectory(srcDir));
 
                 var outFile = OutputDirectory / "MCAuthHelper" / (Configuration == Configuration.Release ? "release" : "debug") / ("mcauthhelper" + (IsWin ? ".exe" : ""));
 
