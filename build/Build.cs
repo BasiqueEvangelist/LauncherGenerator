@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Nuke.Common;
 using Nuke.Common.CI;
@@ -53,6 +54,22 @@ namespace LauncherGenerator.Build
                     .SetProjectFile(Solution));
             });
 
+        Target BuildSingle => _ => _
+            .DependsOn(CompileMCAH)
+            .DependsOn(Restore)
+            .Executes(() =>
+            {
+                DotNetPublish(s => s
+                    .SetProject(Solution.GetProject("LauncherGenerator"))
+                    .SetConfiguration(Configuration)
+                    .SetAssemblyVersion(GitVersion.AssemblySemVer)
+                    .SetFileVersion(GitVersion.AssemblySemFileVer)
+                    .SetInformationalVersion(GitVersion.InformationalVersion)
+                    .SetOutput(OutputDirectory / "LauncherGenerator")
+                    .SetRuntime(GetRID())
+                    .SetPublishSingleFile(true));
+            });
+
         Target Compile => _ => _
             .DependsOn(Restore)
             .DependsOn(CompileMCAH)
@@ -64,7 +81,7 @@ namespace LauncherGenerator.Build
                     .SetAssemblyVersion(GitVersion.AssemblySemVer)
                     .SetFileVersion(GitVersion.AssemblySemFileVer)
                     .SetInformationalVersion(GitVersion.InformationalVersion)
-                    .SetOutputDirectory(OutputDirectory / "LauncherGenerator")
+                    .SetOutputDirectory(OutputDirectory / "LauncherGeneratorCompile")
                     .EnableNoRestore());
             });
 
@@ -82,5 +99,17 @@ namespace LauncherGenerator.Build
 
                 CopyFileToDirectory(outFile, targetDir / "LauncherGeneratorNeeded", FileExistsPolicy.OverwriteIfNewer);
             });
+
+        static string GetRID()
+        {
+            return Platform switch
+            {
+                PlatformFamily.Linux => "linux",
+                PlatformFamily.OSX => "osx",
+                PlatformFamily.Windows => "win",
+
+                _ => throw new NotImplementedException()
+            } + (Is64Bit ? "-x64" : "-x86");
+        }
     }
 }
