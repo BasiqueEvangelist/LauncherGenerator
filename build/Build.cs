@@ -71,8 +71,8 @@ namespace LauncherGenerator.Build
             });
 
         Target Compile => _ => _
-            .DependsOn(Restore)
             .DependsOn(CompileMCAH)
+            .DependsOn(Restore)
             .Executes(() =>
             {
                 DotNetBuild(s => s
@@ -97,7 +97,7 @@ namespace LauncherGenerator.Build
 
                 var outFile = OutputDirectory / "MCAuthHelper" / (Configuration == Configuration.Release ? "release" : "debug") / ("mcauthhelper" + (IsWin ? ".exe" : ""));
 
-                CopyFileToDirectory(outFile, targetDir / "LauncherGeneratorNeeded", FileExistsPolicy.OverwriteIfNewer);
+                CopyFileToDirectory(outFile, OutputDirectory / "MCAuthHelper" / "LauncherGeneratorNeeded", FileExistsPolicy.OverwriteIfNewer);
             });
 
         static string GetRID()
