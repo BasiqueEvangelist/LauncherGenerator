@@ -19,6 +19,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <EmbeddedResource Include="mc-example.ini" />
-    <EmbeddedResource Include="$(OutputPath)/../MCAuthHelper/LauncherGeneratorNeeded/*" />
+    <EmbeddedResource Include="$(MSBuildProjectDirectory)/../../output/MCAuthHelper/LauncherGeneratorNeeded/*" />
   </ItemGroup>
 </Project>
