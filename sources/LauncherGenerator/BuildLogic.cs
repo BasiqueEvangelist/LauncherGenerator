@@ -100,7 +100,7 @@ namespace LauncherGenerator
 
             await Task.WhenAll(
                 allAssetIndexes
-                    .Select(x => x.UnpackVirtuals("data/assets/objects", "data/assets/virtuals/" + x))
+                    .Select(x => x.UnpackVirtuals("data/assets/objects", "data/assets/virtual/legacy"))
             );
         }
         public static async Task LoadLogConfigs(IEnumerable<VersionManifest> manifests)
