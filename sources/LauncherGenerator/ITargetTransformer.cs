@@ -17,6 +17,7 @@ namespace LauncherGenerator
     public class AllTransformer : ITargetTransformer
     {
         private FabricTransformer fabric = new FabricTransformer();
+        private QuiltTransformer quilt = new QuiltTransformer();
 
         public async Task<TransformedTarget> Transform(Target from)
         {
@@ -24,6 +25,8 @@ namespace LauncherGenerator
             {
                 case "fabric":
                     return await fabric.Transform(from);
+                case "quilt":
+                    return await quilt.Transform(from);
                 case "none":
                     return new TransformedTarget { From = from, VersionID = from.VersionID };
                 default:
