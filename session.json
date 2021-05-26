@@ -1,0 +1,22 @@
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhNTAyMWZjNTE1ODg0ZGRiOWI3OWIzZDllNTBlZDFhMyIsInlnZ3QiOiI3OTRiNzQ4MmJmYTY0NDYyYmM0YzNlZGJjNzg4N2ZiMCIsInNwciI6IjYzZGI0OGI0NzIzYTQzMjM4ZDY3NDU2Nzk1MDdmZDgyIiwiaXNzIjoiWWdnZHJhc2lsLUF1dGgiLCJleHAiOjE2MjIyMzY3NTYsImlhdCI6MTYyMjA2Mzk1Nn0.g3Mh8IL4TVTWEXMjaQnxvelO8W-ZEQh9eNLul9bG9J4",
+  "clientToken": "b5d878e5d3c9472e932e5dd1fb76c96b",
+  "availableProfiles": [
+    {
+      "id": "63db48b4-723a-4323-8d67-45679507fd82",
+      "name": "GreatGrayOwl",
+      "legacy": false
+    }
+  ],
+  "selectedProfile": {
+    "id": "63db48b4-723a-4323-8d67-45679507fd82",
+    "name": "GreatGrayOwl",
+    "legacy": false
+  },
+  "user": {
+    "id": "a5021fc515884ddb9b79b3d9e50ed1a3",
+    "properties": []
+  },
+  "email": "basiqueevangelist@yandex.ru",
+  "isOffline": false
+}

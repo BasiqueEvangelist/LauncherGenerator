@@ -20,21 +20,25 @@
     </None>
     <EmbeddedResource Include="mc-example.ini" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(ProjectDir)/../MCAuthHelper/build/libs/MCAuthHelper.jar" />
+  </ItemGroup>
+
   <Choose>
     <When Condition="'$(OS.Substring(0,3))' == 'Win'">
-      <ItemGroup>
-        <EmbeddedResource Include="$(ProjectDir)/../MCAuthHelper/target/release/mcauthhelper.exe" />
-      </ItemGroup>
+      <PropertyGroup>
+        <MCAHBuildCommand>gradlew.bat build</MCAHBuildCommand>
+      </PropertyGroup>
     </When>
     <Otherwise>
-      <ItemGroup>
-        <EmbeddedResource Include="$(ProjectDir)/../MCAuthHelper/target/release/mcauthhelper" />
-      </ItemGroup>
+      <PropertyGroup>
+        <MCAHBuildCommand>./gradlew build</MCAHBuildCommand>
+      </PropertyGroup>
     </Otherwise>
   </Choose>
   
   <Target Name="BuildMCAH" BeforeTargets="BeforeBuild">
     <Message Importance="high" Text="Building MCAuthHelper" />
-    <Exec WorkingDirectory="$(ProjectDir)/../MCAuthHelper" Command="cargo build --release" />
+    <Exec WorkingDirectory="$(ProjectDir)/../MCAuthHelper" Command="$(MCAHBuildCommand)" />
   </Target>
 </Project>

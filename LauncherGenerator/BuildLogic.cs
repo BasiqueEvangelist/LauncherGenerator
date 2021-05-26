@@ -125,7 +125,9 @@ namespace LauncherGenerator
                 GameArguments combined = new GameArguments(t.From.JVMArguments)
                     + vm.JavaArguments
                     //  (vm.LoggingSettings.ContainsKey("client") ? vm.LoggingSettings["client"].GameArgument : new GameArguments("")) +
+                    + new GameArguments("me.basiqueevangelist.launchergenerator.authhelper.MinecraftAuthHelper")
                     + new GameArguments(vm.MainClass)
+                    + new GameArguments(cfg.Username)
                     + new GameArguments(t.From.NewGameArguments)
                     + vm.MinecraftArguments;
                 AssetGroupIndex ai = await vm.AssetGroup.GetIndex();
@@ -164,9 +166,7 @@ namespace LauncherGenerator
                         sw.WriteLine("cd $(cd `dirname $0` && pwd)");
                     }
                     sw.WriteLine("cd profiles/" + t.From.Profile);
-                    var ahline =
-                     (Environment.OSVersion.Platform == PlatformID.Win32NT ? "..\\..\\mcauthhelper.exe " : "../../mcauthhelper ") + cfg.Username + " ";
-                    sw.WriteLine(ahline + t.From.JavaPath.Replace("\\", "\\\\") + " " + GameArguments.FoldArgs(cargs));
+                    sw.WriteLine(t.From.JavaPath.Replace("\\", "\\\\") + " " + GameArguments.FoldArgs(cargs));
                     // sw.WriteLine("pause");
                 }
                 Log.FileNew(fname);
@@ -178,17 +178,9 @@ namespace LauncherGenerator
             }
 
             var assembly = typeof(Program).Assembly;
-            var exename = Environment.OSVersion.Platform != PlatformID.Win32NT
-                    ? "mcauthhelper"
-                    : "mcauthhelper.exe";
-            using (Stream exampleIn = assembly.GetManifestResourceStream("LauncherGenerator." + exename) ?? throw new NotImplementedException())
-            using (FileStream exampleOut = File.Open("data/" + exename, FileMode.Create, FileAccess.Write, FileShare.Delete))
-                await exampleIn.CopyToAsync(exampleOut);
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
-            {
-                UnixFileInfo ufi = new UnixFileInfo("data/" + exename);
-                ufi.FileAccessPermissions |= FileAccessPermissions.UserExecute | FileAccessPermissions.GroupRead | FileAccessPermissions.OtherExecute;
-            }
+            using (Stream jarIn = assembly.GetManifestResourceStream("LauncherGenerator.MCAuthHelper.jar") ?? throw new NotImplementedException())
+            using (FileStream jarOut = File.Open("data/MCAuthHelper.jar", FileMode.Create, FileAccess.Write, FileShare.Delete))
+                await jarIn.CopyToAsync(jarOut);
         }
 
         public static async Task WriteLauncherProfiles()
@@ -205,6 +197,7 @@ namespace LauncherGenerator
             List<string> entr = vm.Libraries.Where(x => x.IsNeeded).SelectMany(x => x.NeededDownloads).Select(x => "../../libraries/" + x.Value.LibraryPath).ToList();
             string jarId = vm.JarFrom?.ID ?? vm.ID;
             entr.Add("../../versions/" + jarId + "/" + jarId + ".jar");
+            entr.Add("../../MCAuthHelper.jar");
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 return string.Join(";", entr);
             else

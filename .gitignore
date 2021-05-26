@@ -7,3 +7,7 @@ LauncherGenerator/data
 LauncherGenerator/*.sh
 LauncherGenerator/mc.ini
 **/target
+
+.gradle
+build
+.idea
