@@ -3,7 +3,7 @@
 **/*.csproj.user
 **/bin
 **/obj
-sources/LauncherGenerator/data
-sources/LauncherGenerator/*.sh
-sources/LauncherGenerator/mc.ini
+LauncherGenerator/data
+LauncherGenerator/*.sh
+LauncherGenerator/mc.ini
 **/target
