@@ -43,60 +43,6 @@ public static class MCHttpHelper
     public static async Task<WrappingResourceHolder<Stream>> Open(Uri url)
      => await VariableResourceManager.NetworkConnections.WrapWait<Stream>(() => client.GetStreamAsync(url));
     #endregion
-    #region POST
-    public static Task<TResponse> PostYggdrasil<TResponse, TRequest>(string url, TRequest data) => PostYggdrasil<TResponse, TRequest>(new Uri(url), data);
-
-    public static async Task<TResponse> PostYggdrasil<TResponse, TRequest>(Uri url, TRequest data)
-    {
-        var srl = JsonConvert.SerializeObject(data);
-        using var holder = await VariableResourceManager.NetworkConnections.Wait();
-        var reply = await client.PostAsync(url, new StringContent(srl, Encoding.UTF8, "application/json"));
-        var str = await reply.Content.ReadAsStreamAsync();
-        if ((int)reply.StatusCode > 299 || (int)reply.StatusCode < 200)
-        {
-            // Handle Yggdrasil error
-            MCLoginError err;
-            try
-            {
-                err = Deserialize<MCLoginError>(str);
-            }
-            catch
-            {
-                throw new MCLoginException("Invalid error from Yggdrasil");
-            }
-            MCLoginException exc = new MCLoginException(err.Error + ": " + err.ErrorMessage);
-            exc.Data["Error"] = err;
-            throw exc;
-        }
-        return Deserialize<TResponse>(str);
-    }
-    public static Task PostYggdrasil<TRequest>(string url, TRequest data) => PostYggdrasil<TRequest>(new Uri(url), data);
-
-    public static async Task PostYggdrasil<TRequest>(Uri url, TRequest data)
-    {
-        var srl = JsonConvert.SerializeObject(data);
-        using var holder = await VariableResourceManager.NetworkConnections.Wait();
-        var reply = await client.PostAsync(url, new StringContent(srl, Encoding.UTF8, "application/json"));
-        var str = await reply.Content.ReadAsStreamAsync();
-        if ((int)reply.StatusCode > 299 || (int)reply.StatusCode < 200)
-        {
-            // Handle Yggdrasil error
-            MCLoginError err;
-            try
-            {
-                err = Deserialize<MCLoginError>(str);
-            }
-            catch
-            {
-                throw new MCLoginException("Invalid error from Yggdrasil");
-            }
-            MCLoginException exc = new MCLoginException(err.Error + ": " + err.ErrorMessage);
-            exc.Data["Error"] = err;
-            throw exc;
-        }
-
-    }
-    #endregion
     #region HEAD
     public static Task<HttpResponseMessage> Head(string url) => Head(new Uri(url));
 
