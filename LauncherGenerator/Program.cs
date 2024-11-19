@@ -1,51 +1,50 @@
 ﻿using IniParser;
 
-namespace LauncherGenerator
+namespace LauncherGenerator;
+
+class Program
 {
-    class Program
+    static async Task Main(string[] args)
     {
-        static async Task Main(string[] args)
+        if (!File.Exists("mc.ini"))
         {
-            if (!File.Exists("mc.ini"))
-            {
-                var assembly = typeof(Program).Assembly;
-                using (Stream exampleIn = assembly.GetManifestResourceStream("LauncherGenerator.mc-example.ini") ?? throw new NotImplementedException())
-                using (FileStream exampleOut = File.OpenWrite("mc.ini"))
-                    await exampleIn.CopyToAsync(exampleOut);
-            }
-            Config cfg = new Config(new FileIniDataParser().ReadFile("mc.ini", Encoding.UTF8));
-            if (cfg.IsStub)
-            {
-                Log.Error("Please edit config");
-                return;
-            }
-            Log.Step("Loaded config");
+            var assembly = typeof(Program).Assembly;
+            using (Stream exampleIn = assembly.GetManifestResourceStream("LauncherGenerator.mc-example.ini") ?? throw new NotImplementedException())
+            using (FileStream exampleOut = File.OpenWrite("mc.ini"))
+                await exampleIn.CopyToAsync(exampleOut);
+        }
+        Config cfg = new Config(new FileIniDataParser().ReadFile("mc.ini", Encoding.UTF8));
+        if (cfg.IsStub)
+        {
+            Log.Error("Please edit config");
+            return;
+        }
+        Log.Step("Loaded config");
 
-            Directory.CreateDirectory("data");
-            Directory.CreateDirectory("data/libraries");
-            Directory.CreateDirectory("data/versions");
-            Directory.CreateDirectory("data/assets/indexes");
-            Directory.CreateDirectory("data/assets/objects");
-            Directory.CreateDirectory("data/assets/log_configs");
-            Directory.CreateDirectory("data/assets/virtual");
+        Directory.CreateDirectory("data");
+        Directory.CreateDirectory("data/libraries");
+        Directory.CreateDirectory("data/versions");
+        Directory.CreateDirectory("data/assets/indexes");
+        Directory.CreateDirectory("data/assets/objects");
+        Directory.CreateDirectory("data/assets/log_configs");
+        Directory.CreateDirectory("data/assets/virtual");
 
-            if (args.Length < 1)
-            {
+        if (args.Length < 1)
+        {
+            await ProgramTasks.Build(cfg);
+            return;
+        }
+        switch (args[0])
+        {
+            case "build":
                 await ProgramTasks.Build(cfg);
                 return;
-            }
-            switch (args[0])
-            {
-                case "build":
-                    await ProgramTasks.Build(cfg);
-                    return;
-                case "gc":
-                    await ProgramTasks.CollectGarbage(cfg);
-                    return;
-                default:
-                    Log.Error($"No such subcommand {args[0]}");
-                    return;
-            }
+            case "gc":
+                await ProgramTasks.CollectGarbage(cfg);
+                return;
+            default:
+                Log.Error($"No such subcommand {args[0]}");
+                return;
         }
     }
 }

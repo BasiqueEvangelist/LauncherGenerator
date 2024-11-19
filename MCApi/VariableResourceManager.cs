@@ -1,55 +1,53 @@
-namespace MCApi
+namespace MCApi;
+
+public class VariableResourceManager
 {
-    public class VariableResourceManager
+    public static VariableResourceManager NetworkConnections { get; } = new VariableResourceManager(10);
+
+
+    private SemaphoreSlim semaphore;
+
+    public VariableResourceManager(int limit)
     {
-        public static VariableResourceManager NetworkConnections { get; } = new VariableResourceManager(10);
-
-
-        private SemaphoreSlim semaphore;
-
-        public VariableResourceManager(int limit)
-        {
-            semaphore = new SemaphoreSlim(limit, limit);
-        }
-
-        public async Task<ResourceHolder> Wait()
-        {
-            await semaphore.WaitAsync();
-            return new ResourceHolder(this);
-        }
-
-        internal void Release() { semaphore.Release(); }
-
-        public async Task<WrappingResourceHolder<T>> WrapWait<T>(Func<Task<T>> action)
-        {
-            await semaphore.WaitAsync();
-            return new WrappingResourceHolder<T>(this, await action());
-        }
+        semaphore = new SemaphoreSlim(limit, limit);
     }
 
-    public class ResourceHolder : IDisposable
+    public async Task<ResourceHolder> Wait()
     {
-        private VariableResourceManager manager;
-
-        public ResourceHolder(VariableResourceManager mgr)
-        {
-            manager = mgr;
-        }
-
-        public void Dispose()
-        {
-            manager.Release();
-        }
+        await semaphore.WaitAsync();
+        return new ResourceHolder(this);
     }
 
-    public class WrappingResourceHolder<T> : ResourceHolder
-    {
-        public WrappingResourceHolder(VariableResourceManager mgr, T value) : base(mgr)
-        {
-            this.Value = value;
-        }
+    internal void Release() { semaphore.Release(); }
 
-        public T Value { get; set; }
+    public async Task<WrappingResourceHolder<T>> WrapWait<T>(Func<Task<T>> action)
+    {
+        await semaphore.WaitAsync();
+        return new WrappingResourceHolder<T>(this, await action());
+    }
+}
+
+public class ResourceHolder : IDisposable
+{
+    private VariableResourceManager manager;
+
+    public ResourceHolder(VariableResourceManager mgr)
+    {
+        manager = mgr;
     }
 
+    public void Dispose()
+    {
+        manager.Release();
+    }
+}
+
+public class WrappingResourceHolder<T> : ResourceHolder
+{
+    public WrappingResourceHolder(VariableResourceManager mgr, T value) : base(mgr)
+    {
+        this.Value = value;
+    }
+
+    public T Value { get; set; }
 }
