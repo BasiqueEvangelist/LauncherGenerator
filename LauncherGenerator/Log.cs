@@ -1,5 +1,3 @@
-using System.Threading;
-using System;
 namespace LauncherGenerator
 {
     public static class Log

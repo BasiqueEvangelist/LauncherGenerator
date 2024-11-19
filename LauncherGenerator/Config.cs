@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using IniParser.Model;
 
 namespace LauncherGenerator

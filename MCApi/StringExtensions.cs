@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace MCApi
+﻿namespace MCApi
 {
     public static class StringExtensions
     {

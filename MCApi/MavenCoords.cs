@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace MCApi
+﻿namespace MCApi
 {
     public class MavenCoords
     {

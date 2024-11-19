@@ -1,9 +1,3 @@
-using System.Threading.Tasks;
-using System;
-using System.IO;
-using System.Threading;
-using System.Collections.Generic;
-
 namespace MCApi
 {
     public class VariableResourceManager

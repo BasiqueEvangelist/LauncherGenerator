@@ -1,7 +1,3 @@
-using System.IO;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using MCApi;
 using Newtonsoft.Json;
 
 namespace LauncherGenerator

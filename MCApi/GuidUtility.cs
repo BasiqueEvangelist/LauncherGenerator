@@ -1,9 +1,6 @@
 ﻿//Taken from https://github.com/Faithlife/FaithlifeUtility/blob/master/src/Faithlife.Utility/GuidUtility.cs
 //Licensed under MIT
-using System;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace MCApi
 {
