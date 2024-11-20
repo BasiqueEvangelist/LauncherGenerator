@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="SharpZipLib.NETStandard" Version="1.0.7" />
   </ItemGroup>
 
 </Project>

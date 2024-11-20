@@ -3,6 +3,7 @@
 **/*.csproj.user
 **/bin
 **/obj
+*.DotSettings.user
 LauncherGenerator/data
 LauncherGenerator/*.sh
 LauncherGenerator/mc.ini

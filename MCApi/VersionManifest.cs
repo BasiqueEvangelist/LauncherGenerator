@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using ICSharpCode.SharpZipLib.Zip;
+using System.IO.Compression;
 
 namespace MCApi;
 
@@ -73,16 +73,17 @@ public class VersionManifest
     }
     private async Task unpackNativesFor(DescribedRemoteFile f, string lf, string nf, Action<string> onunpack)
     {
-        using (FileStream zfs = File.OpenRead(Path.Combine(lf, f.LibraryPath)))
-        using (ZipFile z = new ZipFile(zfs))
+        using ZipArchive z = ZipFile.OpenRead(Path.Combine(lf, f.LibraryPath));
+        
+        foreach (var entry in z.Entries)
         {
-            await Task.WhenAll(new EnumerableFixer<ZipEntry>(z).Where(x => !x.Name.Contains("META-INF")).Select(async x =>
-            {
-                using (Stream s = z.GetInputStream(x))
-                using (FileStream fs = File.Open(Path.Combine(nf, x.Name), FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                    await s.CopyToAsync(fs);
-                onunpack(x.Name);
-            }));
+            if (entry.FullName.Contains("META-INF")) continue;
+                
+            using (Stream s = entry.Open())
+            using (FileStream fs = File.Open(Path.Combine(nf, entry.FullName), FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                await s.CopyToAsync(fs);
+                
+            onunpack(entry.FullName);
         }
     }
 
