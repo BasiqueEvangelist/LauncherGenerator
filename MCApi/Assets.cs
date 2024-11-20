@@ -64,7 +64,8 @@ public class AssetGroupIndex
             }
             await Task.Run(() =>
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(virtualfolder, path)));
+                Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(virtualfolder, path))!);
+                
                 File.Copy(Path.Combine(objectfolder, getParts(asset.Hash)), Path.Combine(virtualfolder, path));
             });
         }

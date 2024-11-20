@@ -6,13 +6,17 @@ namespace MCApi;
 
 public static class MCHttpHelper
 {
-    private static HttpClient client;
+    private static readonly HttpClient Client;
+    
     static MCHttpHelper()
     {
-        ServicePointManager.DefaultConnectionLimit = 5;
-        client = new HttpClient();
-        client.DefaultRequestHeaders.Add("User-Agent", "MCApi/0.1a");
+        Client = new HttpClient(new HttpClientHandler()
+        {
+            MaxConnectionsPerServer = 5
+        });
+        Client.DefaultRequestHeaders.Add("User-Agent", "MCApi/0.1a");
     }
+    
     private static T Deserialize<T>(Stream s)
     {
         JsonSerializer js = new JsonSerializer();
@@ -26,7 +30,7 @@ public static class MCHttpHelper
     public static async Task<T> Get<T>(Uri url)
     {
         using var holder = await VariableResourceManager.NetworkConnections.Wait();
-        var reply = await client.GetAsync(url);
+        var reply = await Client.GetAsync(url);
         if ((int)reply.StatusCode >= 299)
         {
             if (reply.StatusCode == HttpStatusCode.NotFound)
@@ -41,7 +45,7 @@ public static class MCHttpHelper
     }
     public static Task<WrappingResourceHolder<Stream>> Open(string url) => Open(new Uri(url));
     public static async Task<WrappingResourceHolder<Stream>> Open(Uri url)
-     => await VariableResourceManager.NetworkConnections.WrapWait<Stream>(() => client.GetStreamAsync(url));
+     => await VariableResourceManager.NetworkConnections.WrapWait<Stream>(() => Client.GetStreamAsync(url));
     #endregion
     #region HEAD
     public static Task<HttpResponseMessage> Head(string url) => Head(new Uri(url));
@@ -49,7 +53,7 @@ public static class MCHttpHelper
     public static async Task<HttpResponseMessage> Head(Uri url)
     {
         using var holder = await VariableResourceManager.NetworkConnections.Wait();
-        return await client.SendAsync(new HttpRequestMessage
+        return await Client.SendAsync(new HttpRequestMessage
         {
             Method = HttpMethod.Head,
             RequestUri = url

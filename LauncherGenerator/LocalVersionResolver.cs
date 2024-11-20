@@ -15,7 +15,7 @@ public class LocalVersionResolver : IVersionResolver
                 using (var fs = File.OpenRead(Path.Combine(s, vid + ".json")))
                 using (StreamReader sr = new StreamReader(fs))
                 using (JsonTextReader jr = new JsonTextReader(sr))
-                    vl.Add(js.Deserialize<VersionManifestDefinition>(jr));
+                    vl.Add(js.Deserialize<VersionManifestDefinition>(jr)!);
         }
         return Task.FromResult(vl as IEnumerable<VersionDefinition>);
     }
@@ -27,7 +27,7 @@ public class LocalVersionResolver : IVersionResolver
             using (var fs = File.OpenRead(Path.Combine("data", "assets", "indexes", id.ID + ".json")))
             using (StreamReader sr = new StreamReader(fs))
             using (JsonTextReader jr = new JsonTextReader(sr))
-                return Task.FromResult(js.Deserialize<AssetGroupIndexDefinition>(jr));
+                return Task.FromResult(js.Deserialize<AssetGroupIndexDefinition>(jr)!);
         throw new MCDownloadException("Couldn't find assets in local files");
     }
 
@@ -38,7 +38,7 @@ public class LocalVersionResolver : IVersionResolver
             using (var fs = File.OpenRead(Path.Combine("data", "versions", v.ID, v.ID + ".json")))
             using (StreamReader sr = new StreamReader(fs))
             using (JsonTextReader jr = new JsonTextReader(sr))
-                return Task.FromResult(js.Deserialize<VersionManifestDefinition>(jr));
+                return Task.FromResult(js.Deserialize<VersionManifestDefinition>(jr)!);
         throw new MCDownloadException("Couldn't find version in local files");
     }
 }

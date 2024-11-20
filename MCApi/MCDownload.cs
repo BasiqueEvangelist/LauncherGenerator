@@ -84,7 +84,7 @@ public class MCVersion
     public DateTime ReleaseTime => DescribedBy.ReleaseTime;
 
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is MCVersion other)
             return ID == other.ID;

@@ -56,7 +56,7 @@ public interface RemoteFile
                     else
                     {
                         string fh;
-                        using (SHA1Managed s1 = new SHA1Managed())
+                        using (SHA1 s1 = SHA1.Create())
                         using (FileStream s = File.OpenRead(path))
                             fh = string.Concat(s1.ComputeHash(s).Select(x => x.ToString("x2")));
                         if (fh == Hash)
@@ -177,13 +177,10 @@ public class DescribedRemoteFile : RemoteFile
     {
         return _1.Url != _2.Url;
     }
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
-        if (obj.GetType() != typeof(DescribedRemoteFile)) return false;
+        if (obj?.GetType() != typeof(DescribedRemoteFile)) return false;
         return ((DescribedRemoteFile)obj).Url == Url;
     }
-    public override int GetHashCode()
-    {
-        return Url.GetHashCode();
-    }
+    public override int GetHashCode() => Url.GetHashCode();
 }
