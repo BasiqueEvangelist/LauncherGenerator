@@ -69,11 +69,18 @@ public class LibraryDefinition
         [JsonPropertyName("exclude")]
         public required string[] Exclude;
     }
+    public class DownloadsBlock
+    {
+        [JsonPropertyName("artifact")]
+        public RemoteFileDefinition? Artifact;
+        [JsonPropertyName("classifiers")]
+        public Dictionary<string, RemoteFileDefinition>? Classifiers;
+    }
 
     [JsonPropertyName("name")]
     public required string Name;
     [JsonPropertyName("downloads")]
-    public Dictionary<string, JsonObject>? Downloads;
+    public DownloadsBlock? Downloads;
     [JsonPropertyName("url")]
     public Uri? Url;
     [JsonPropertyName("rules")]
@@ -92,15 +99,25 @@ public class GameArgumentJsonConverter : JsonConverter<IGameArgument>
     {
         if (reader.TokenType == JsonTokenType.String)
             return new SimpleArgument(reader.GetString()!);
-        
-        return JsonSerializer.Deserialize<ComplexArgument>(reader, options);
+
+        return JsonSerializer.Deserialize<ComplexArgument>(ref reader, options);
     }
 
     public override void Write(Utf8JsonWriter writer, IGameArgument value, JsonSerializerOptions options)
     {
-        if (value is SimpleArgument) {
-            
-        }
+        switch (value)
+        {
+            case SimpleArgument sa:
+                writer.WriteStringValue(sa.Value);
+                break;
+            case ComplexArgument ca:
+                JsonSerializer.Serialize(writer, ca, options);
+                break;
+            case ListArgument la:
+                JsonSerializer.Serialize(writer, la.Values, options);
+                break;
+            default: throw new JsonException();
+        };
     }
 }
 
@@ -109,10 +126,13 @@ public record SimpleArgument(string Value) : IGameArgument;
 public class ComplexArgument : IGameArgument
 {
     [JsonPropertyName("value")]
-    public required JsonValue Value;
+    public required IGameArgument Value;
     [JsonPropertyName("rules")]
     public required MCRule[] Rules;
 }
+
+public record class ListArgument (List<IGameArgument> Values) : IGameArgument;
+
 public class MCRule
 {
     [JsonConverter(typeof(SnakeCaseEnumConverter<RuleAction>))]

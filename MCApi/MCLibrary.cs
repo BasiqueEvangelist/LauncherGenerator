@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 
 namespace MCApi;
 
@@ -45,66 +44,53 @@ public class MCLibrary
     }
     private IEnumerable<KeyValuePair<string, DescribedRemoteFile>> unprocessedDownloads()
     {
-        if (DescribedBy.Downloads != null)
+        if (DescribedBy.Downloads is { } downloads)
         {
-            if (DescribedBy.Downloads.ContainsKey("artifact"))
-                yield return KeyValuePair.Create("artifact", new DescribedRemoteFile(DescribedBy.Downloads["artifact"].ToObject<RemoteFileDefinition>()));
-            if (DescribedBy.Downloads.ContainsKey("classifiers"))
-                foreach (var item in DescribedBy.Downloads["classifiers"].ToObject<Dictionary<string, RemoteFileDefinition>>())
+            if (downloads.Artifact is { } artifact)
+                yield return KeyValuePair.Create("artifact", new DescribedRemoteFile(artifact));
+            if (downloads.Classifiers is { } classifiers)
+                foreach (var item in classifiers)
                     yield return KeyValuePair.Create(item.Key, new DescribedRemoteFile(item.Value));
         }
         else
         {
-            if (DescribedBy.Url != null)
-            {
-                yield return KeyValuePair.Create("artifact", new DescribedRemoteFile(DescribedBy.Url.ToString(), new MavenCoords(DescribedBy.Name).LibraryPath));
-            }
-            else
-            {
-                yield return KeyValuePair.Create("artifact", new DescribedRemoteFile("https://libraries.minecraft.net/" + new MavenCoords(DescribedBy.Name).LibraryPath, new MavenCoords(DescribedBy.Name).LibraryPath));
-            }
+            var mavenCoords = new MavenCoords(DescribedBy.Name);
+            var url = DescribedBy.Url?.ToString() ?? $"https://libraries.minecraft.net/{mavenCoords.LibraryPath}";
+            yield return KeyValuePair.Create("artifact", new DescribedRemoteFile(url, mavenCoords.LibraryPath));
         }
     }
     private IEnumerable<KeyValuePair<string, DescribedRemoteFile>> unprocessedNeededDownloads()
     {
-        if (DescribedBy.Downloads != null)
+        if (DescribedBy.Downloads is { } downloads)
         {
-            if (DescribedBy.Downloads.ContainsKey("artifact"))
+            if (downloads.Artifact is { } artifact)
+                yield return KeyValuePair.Create("artifact", new DescribedRemoteFile(artifact));
+            if (downloads.Classifiers is { } classifiers)
             {
-                KeyValuePair<string, DescribedRemoteFile> kvp;
-                try
+                foreach (var item in classifiers)
                 {
-                    kvp = KeyValuePair.Create("artifact", new DescribedRemoteFile(DescribedBy.Downloads["artifact"].ToObject<RemoteFileDefinition>())); ;
+                    if (IsCurrentPlatform(item.Key))
+                        yield return KeyValuePair.Create(item.Key, new DescribedRemoteFile(item.Value));
                 }
-                catch (JsonSerializationException)
-                {
-                    yield break; // Forge lol
-                }
-                yield return kvp;
             }
-            if (DescribedBy.Downloads.ContainsKey("classifiers"))
-                foreach (var item in DescribedBy.Downloads["classifiers"].ToObject<Dictionary<string, RemoteFileDefinition>>())
-                {
-                    if (Environment.OSVersion.Platform == PlatformID.Win32NT && item.Key == "natives-windows")
-                        yield return KeyValuePair.Create(item.Key, new DescribedRemoteFile(item.Value));
-                    else if (Environment.OSVersion.Platform == PlatformID.MacOSX && item.Key == "natives-osx")
-                        yield return KeyValuePair.Create(item.Key, new DescribedRemoteFile(item.Value));
-                    else if (Environment.OSVersion.Platform == PlatformID.Unix && item.Key == "natives-linux")
-                        yield return KeyValuePair.Create(item.Key, new DescribedRemoteFile(item.Value));
-                }
         }
         else
         {
-            if (DescribedBy.Url != null)
-            {
-                yield return KeyValuePair.Create("artifact", new DescribedRemoteFile(DescribedBy.Url.ToString(), new MavenCoords(DescribedBy.Name).LibraryPath));
-            }
-            else
-            {
-                yield return KeyValuePair.Create("artifact", new DescribedRemoteFile("https://libraries.minecraft.net/" + new MavenCoords(DescribedBy.Name).LibraryPath, new MavenCoords(DescribedBy.Name).LibraryPath));
-            }
+            var mavenCoords = new MavenCoords(DescribedBy.Name);
+            var url = DescribedBy.Url?.ToString() ?? $"https://libraries.minecraft.net/{mavenCoords.LibraryPath}";
+            yield return KeyValuePair.Create("artifact", new DescribedRemoteFile(url, mavenCoords.LibraryPath));
         }
     }
+
+    static bool IsCurrentPlatform(string platformName)
+        => platformName switch
+    {
+        "natives-windows" => OperatingSystem.IsWindows(),
+        "natives-osx" => OperatingSystem.IsMacOS(),
+        "natives-linux" => OperatingSystem.IsLinux(),
+        _ => false
+    };
+
     #endregion
 
     public bool IsNeeded

@@ -1,3 +1,4 @@
+using MCApi.Utils;
 using Mono.Unix;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -39,44 +40,32 @@ public static class BuildLogic
     }
     public static async Task SaveVersionManifests(IEnumerable<VersionManifest> manifests)
     {
-        JsonSerializer js = new JsonSerializer()
-        {
-            Formatting = Formatting.Indented,
-            NullValueHandling = NullValueHandling.Ignore
-        };
-
         await Task.WhenAll(
             manifests.Select(x =>
-                Task.Run(() =>
+                Task.Run(async () =>
                 {
-                    Directory.CreateDirectory("data/versions/" + x.ID + "/");
-                    using (FileStream fs = File.Open("data/versions/" + x.ID + "/" + x.ID + ".json", FileMode.Create, FileAccess.Write, FileShare.Read))
-                    using (StreamWriter sw = new StreamWriter(fs))
-                    using (JsonTextWriter jw = new JsonTextWriter(sw))
-                        js.Serialize(jw, x.DescribedBy);
-                    Log.FileNew("data/versions/" + x.ID + "/" + x.ID + ".json");
+                    var dir = $"data/versions/{x.ID}";
+                    Directory.CreateDirectory(dir);
+                    var path = $"{dir}/{x.ID}.json";
+                    await File.WriteAllTextAsync(path, JsonSerializer.Serialize(x.DescribedBy, CommonJsonOptions.Options));
+                    Log.FileNew(path);
                 })
             ));
     }
+
     public static async Task SaveAssetIndexes(IEnumerable<VersionManifest> manifests)
     {
-        JsonSerializer js = new JsonSerializer()
-        {
-            Formatting = Formatting.Indented
-        };
-
         await Task.WhenAll(
             manifests.Select(async x =>
             {
                 AssetGroupIndex ai = await x.AssetGroup.GetIndex();
                 Directory.CreateDirectory("data/assets/indexes");
-                using (FileStream fs = File.Open("data/assets/indexes/" + x.AssetGroup.ID + ".json", FileMode.Create, FileAccess.Write, FileShare.Read))
-                using (StreamWriter sw = new StreamWriter(fs))
-                using (JsonTextWriter jw = new JsonTextWriter(sw))
-                    js.Serialize(jw, ai.DescribedBy);
-                Log.FileNew("data/assets/indexes/" + x.AssetGroup.ID + ".json");
+                var path = $"data/assets/indexes/{x.AssetGroup.ID}.json";
+                await File.WriteAllTextAsync(path, JsonSerializer.Serialize(ai.DescribedBy, CommonJsonOptions.Options));
+                Log.FileNew(path);
             }));
     }
+
     public static async Task LoadAssetObjects(IEnumerable<VersionManifest> manifests)
     {
         var allAssetIndexes = await Task.WhenAll(
@@ -116,6 +105,9 @@ public static class BuildLogic
         {
             MCVersion v = downloader.GetRemoteVersion(t.VersionID);
             VersionManifest vm = await v.GetManifest();
+            var argBuilder = new CommandLineArgumentBuilder();
+            argBuilder.Add(vm.JavaArguments);
+
             GameArguments combined = new GameArguments(t.From.JVMArguments)
                 + vm.JavaArguments
                 //  (vm.LoggingSettings.ContainsKey("client") ? vm.LoggingSettings["client"].GameArgument : new GameArguments("")) +
