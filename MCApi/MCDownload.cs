@@ -78,7 +78,7 @@ public class MCVersion
     }
     public string ID => DescribedBy.ID;
     public VersionType Type => DescribedBy.Type;
-    public Uri Url => DescribedBy.Url;
+    public Uri Url => DescribedBy.Url!;
     public Task<VersionManifest> GetManifest() => downloader.getManifestFor(this);
     public DateTime Time => DescribedBy.Time;
     public DateTime ReleaseTime => DescribedBy.ReleaseTime;

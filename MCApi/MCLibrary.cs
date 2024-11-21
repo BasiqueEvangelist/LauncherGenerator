@@ -114,7 +114,7 @@ public class MCLibrary
             if (DescribedBy.Rules != null)
             {
                 List<MCRule> rulez = DescribedBy.Rules.ToList();
-                rulez.Add(new MCRule() { Action = MCRule.RuleAction.disallow });
+                rulez.Add(new MCRule() { Action = MCRule.RuleAction.Disallow });
                 foreach (MCRule rule in rulez)
                 {
                     if (rule.OS != null)
@@ -139,9 +139,9 @@ public class MCLibrary
                                 continue;
                         }
                     }
-                    if (rule.Action == MCRule.RuleAction.allow)
+                    if (rule.Action == MCRule.RuleAction.Allow)
                         return true;
-                    else if (rule.Action == MCRule.RuleAction.disallow)
+                    else if (rule.Action == MCRule.RuleAction.Disallow)
                         return false;
                 }
             }

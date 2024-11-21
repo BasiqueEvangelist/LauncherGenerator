@@ -1,35 +1,33 @@
-using Newtonsoft.Json;
-
-#nullable disable
+using System.Text.Json.Serialization;
 
 namespace MCApi.Fabric;
 
 public class LoaderVersion
 {
-    [JsonProperty(PropertyName = "seperator")]
-    public string Seperator;
-    [JsonProperty(PropertyName = "build")]
-    public int Build;
-    [JsonProperty(PropertyName = "maven")]
-    public string MavenId;
-    [JsonProperty(PropertyName = "version")]
-    public string Version;
-    [JsonProperty(PropertyName = "stable")]
-    public bool Stable;
+    [JsonPropertyName("seperator")]
+    public required string Seperator;
+    [JsonPropertyName("build")]
+    public required int Build;
+    [JsonPropertyName("maven")]
+    public required string MavenId;
+    [JsonPropertyName("version")]
+    public required string Version;
+    [JsonPropertyName("stable")]
+    public required bool Stable;
 }
 public class IntermediaryVersion
 {
-    [JsonProperty(PropertyName = "maven")]
-    public string MavenId;
-    [JsonProperty(PropertyName = "version")]
-    public string Version;
-    [JsonProperty(PropertyName = "stable")]
-    public bool Stable;
+    [JsonPropertyName("maven")]
+    public required string MavenId;
+    [JsonPropertyName("version")]
+    public required string Version;
+    [JsonPropertyName("stable")]
+    public required bool Stable;
 }
 public class CompatibleSetupForVersion
 {
-    [JsonProperty(PropertyName = "loader")]
-    public LoaderVersion Loader;
-    [JsonProperty(PropertyName = "intermediary")]
-    public IntermediaryVersion Intermediary;
+    [JsonPropertyName("loader")]
+    public required LoaderVersion Loader;
+    [JsonPropertyName("intermediary")]
+    public required IntermediaryVersion Intermediary;
 }

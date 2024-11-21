@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using Newtonsoft.Json.Linq;
 
 namespace MCApi;
 
@@ -100,7 +99,7 @@ public struct GameArgument
         else
         {
             List<MCRule> rulez = Rules.ToList();
-            rulez.Append(new MCRule() { Action = MCRule.RuleAction.disallow });
+            rulez.Append(new MCRule() { Action = MCRule.RuleAction.Disallow });
             foreach (MCRule rule in rulez)
             {
                 if (rule.OS != null)
@@ -147,9 +146,9 @@ public struct GameArgument
                     }
                     if (cont) continue;
                 }
-                if (rule.Action == MCRule.RuleAction.allow)
+                if (rule.Action == MCRule.RuleAction.Allow)
                     return true;
-                else if (rule.Action == MCRule.RuleAction.disallow)
+                else if (rule.Action == MCRule.RuleAction.Disallow)
                     return false;
             }
         }

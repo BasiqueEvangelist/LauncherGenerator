@@ -1,160 +1,184 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
-
-#nullable disable
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace MCApi;
 
-[JsonConverter(typeof(StringEnumConverter))]
+internal class SnakeCaseEnumConverter<T>() : JsonStringEnumConverter<T>(JsonNamingPolicy.SnakeCaseLower, false)
+    where T : struct, Enum;
+
+[JsonConverter(typeof(SnakeCaseEnumConverter<VersionType>))]
 public enum VersionType
 {
-    release,
-    snapshot,
-    old_alpha,
-    old_beta
+    Release, // release
+    Snapshot, // snapshot
+    OldAlpha, // old_alpha
+    OldBeta // old_beta
 }
+
 public class VersionList
 {
-    [JsonProperty(PropertyName = "latest", Required = Required.Always)]
-    public Dictionary<VersionType, string> LatestVersion;
-    [JsonProperty(PropertyName = "versions", Required = Required.Always)]
-    public VersionDefinition[] Versions;
+    [JsonPropertyName("latest")]
+    public required Dictionary<VersionType, string> LatestVersion;
+    [JsonPropertyName("versions")]
+    public required VersionDefinition[] Versions;
 }
 public class VersionDefinition
 {
-    [JsonProperty(PropertyName = "id", Required = Required.Always)]
-    public string ID;
-    [JsonProperty(PropertyName = "type", Required = Required.Always)]
-    public VersionType Type;
-    [JsonProperty(PropertyName = "url", Required = Required.Default)]
-    public Uri Url;
-    [JsonProperty(PropertyName = "time", Required = Required.Always)]
-    public DateTime Time;
-    [JsonProperty(PropertyName = "releaseTime", Required = Required.Always)]
-    public DateTime ReleaseTime;
+    [JsonPropertyName("id")]
+    public required string ID;
+    [JsonPropertyName("type")]
+    public required VersionType Type;
+    [JsonPropertyName("url")]
+    public Uri? Url;
+    [JsonPropertyName("time")]
+    public required DateTime Time;
+    [JsonPropertyName("releaseTime")]
+    public required DateTime ReleaseTime;
 }
 public class VersionManifestDefinition : VersionDefinition
 {
-    [JsonProperty(PropertyName = "minimumLauncherVersion", Required = Required.Default)]
-    public int MinimumLauncherVersion;
-    [JsonProperty(PropertyName = "mainClass", Required = Required.Always)]
-    public string MainClass;
-    [JsonProperty(PropertyName = "logging", Required = Required.Default)]
-    public Dictionary<string, LoggingDefinition> LoggingSettings;
-    [JsonProperty(PropertyName = "minecraftArguments", Required = Required.Default)]
-    public string SimpleArguments;
-    [JsonProperty(PropertyName = "arguments", Required = Required.Default)]
-    public Dictionary<string, List<JToken>> ComplexArguments;
-    [JsonProperty(PropertyName = "downloads", Required = Required.Default)]
-    public Dictionary<string, RemoteFileDefinition> Downloads;
-    [JsonProperty(PropertyName = "assets", Required = Required.Default)]
-    public string AssetGroupID;
-    [JsonProperty(PropertyName = "assetIndex", Required = Required.Default)]
-    public AssetGroupDefinition AssetGroup;
-    [JsonProperty(PropertyName = "libraries", Required = Required.Always)]
-    public LibraryDefinition[] Libraries;
-    [JsonProperty(PropertyName = "jar", Required = Required.Default)]
-    public string JarFrom;
-    [JsonProperty(PropertyName = "inheritsFrom", Required = Required.Default)]
-    public string InheritsFrom;
+    [JsonPropertyName("minimumLauncherVersion")]
+    public int? MinimumLauncherVersion;
+    [JsonPropertyName("mainClass")]
+    public required string MainClass;
+    [JsonPropertyName("logging")]
+    public Dictionary<string, LoggingDefinition>? LoggingSettings;
+    [JsonPropertyName("minecraftArguments")]
+    public string? SimpleArguments;
+    [JsonPropertyName("arguments")]
+    public Dictionary<string, List<JsonValue>>? ComplexArguments;
+    [JsonPropertyName("downloads")]
+    public Dictionary<string, RemoteFileDefinition>? Downloads;
+    [JsonPropertyName("assets")]
+    public string? AssetGroupID;
+    [JsonPropertyName("assetIndex")]
+    public AssetGroupDefinition? AssetGroup;
+    [JsonPropertyName("libraries")]
+    public required LibraryDefinition[] Libraries;
+    [JsonPropertyName("jar")]
+    public string? JarFrom;
+    [JsonPropertyName("inheritsFrom")]
+    public string? InheritsFrom;
 
 }
 public class LibraryDefinition
 {
     public class ExtractBlock
     {
-        [JsonProperty(PropertyName = "exclude", Required = Required.Always)]
-        public string[] Exclude;
-
+        [JsonPropertyName("exclude")]
+        public required string[] Exclude;
     }
 
-    [JsonProperty(PropertyName = "name", Required = Required.Always)]
-    public string Name;
-    [JsonProperty(PropertyName = "downloads", Required = Required.Default)]
-    public Dictionary<string, JObject> Downloads;
-    [JsonProperty(PropertyName = "url", Required = Required.Default)]
-    public Uri Url;
-    [JsonProperty(PropertyName = "rules", Required = Required.Default)]
-    public MCRule[] Rules;
-    [JsonProperty(PropertyName = "natives", Required = Required.Default)]
-    public Dictionary<string, string> NativeNames;
-    [JsonProperty(PropertyName = "extract", Required = Required.Default)]
-    public ExtractBlock ExtractionSettings;
+    [JsonPropertyName("name")]
+    public required string Name;
+    [JsonPropertyName("downloads")]
+    public Dictionary<string, JsonObject>? Downloads;
+    [JsonPropertyName("url")]
+    public Uri? Url;
+    [JsonPropertyName("rules")]
+    public MCRule[]? Rules;
+    [JsonPropertyName("natives")]
+    public Dictionary<string, string>? NativeNames;
+    [JsonPropertyName("extract")]
+    public ExtractBlock? ExtractionSettings;
 }
-public class ComplexArgument
+
+public interface IGameArgument;
+
+public class GameArgumentJsonConverter : JsonConverter<IGameArgument>
 {
-    [JsonProperty(PropertyName = "value", Required = Required.Always)]
-    public JToken Value;
-    [JsonProperty(PropertyName = "rules", Required = Required.Always)]
-    public MCRule[] Rules;
+    public override IGameArgument? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.String)
+            return new SimpleArgument(reader.GetString()!);
+        
+        return JsonSerializer.Deserialize<ComplexArgument>(reader, options);
+    }
+
+    public override void Write(Utf8JsonWriter writer, IGameArgument value, JsonSerializerOptions options)
+    {
+        if (value is SimpleArgument) {
+            
+        }
+    }
+}
+
+public record SimpleArgument(string Value) : IGameArgument;
+
+public class ComplexArgument : IGameArgument
+{
+    [JsonPropertyName("value")]
+    public required JsonValue Value;
+    [JsonPropertyName("rules")]
+    public required MCRule[] Rules;
 }
 public class MCRule
 {
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(SnakeCaseEnumConverter<RuleAction>))]
     public enum RuleAction
     {
-        allow,
-        disallow
+        Allow,
+        Disallow
     }
     public class OSBlock
     {
-        [JsonProperty(PropertyName = "name", Required = Required.Default)]
-        public string Name;
-        [JsonProperty(PropertyName = "version", Required = Required.Default)]
-        public string VersionRegex;
-        [JsonProperty(PropertyName = "arch", Required = Required.Default)]
-        public string Architecture;
+        [JsonPropertyName("name")]
+        public string? Name;
+        [JsonPropertyName("version")]
+        public string? VersionRegex;
+        [JsonPropertyName("arch")]
+        public string? Architecture;
     }
 
-    [JsonProperty(PropertyName = "action", Required = Required.Always)]
-    public RuleAction Action;
-    [JsonProperty(PropertyName = "os", Required = Required.Default)]
-    public OSBlock OS;
-    [JsonProperty(PropertyName = "features", Required = Required.Default)]
-    public Dictionary<string, bool> RequiredFeatures;
+    [JsonPropertyName("action")]
+    public required RuleAction Action;
+    [JsonPropertyName("os")]
+    public OSBlock? OS;
+    [JsonPropertyName("features")]
+    public Dictionary<string, bool>? RequiredFeatures;
 
 }
 public class AssetGroupDefinition : RemoteFileDefinition
 {
-    [JsonProperty(PropertyName = "totalSize", Required = Required.Always)]
-    public int TotalSize;
-    [JsonProperty(PropertyName = "id", Required = Required.Always)]
-    public string ID;
+    [JsonPropertyName("totalSize")]
+    public required int TotalSize;
+    [JsonPropertyName("id")]
+    public required string ID;
 }
 public class AssetGroupIndexDefinition
 {
-    [JsonProperty(PropertyName = "objects", Required = Required.Always)]
-    public Dictionary<string, AssetInfo> Objects;
-    [JsonProperty(PropertyName = "map_to_resources", Required = Required.Default)]
-    public bool IsVirtual;
+    [JsonPropertyName("objects")]
+    public required Dictionary<string, AssetInfo> Objects;
+    [JsonPropertyName("map_to_resources")]
+    public bool IsVirtual = false;
 }
 public class AssetInfo
 {
-    [JsonProperty(PropertyName = "hash", Required = Required.Always)]
-    public string Hash;
-    [JsonProperty(PropertyName = "size", Required = Required.Always)]
-    public int Size;
+    [JsonPropertyName("hash")]
+    public required string Hash;
+    [JsonPropertyName("size")]
+    public required int Size;
 }
 public class LoggingDefinition
 {
-    [JsonProperty(PropertyName = "type", Required = Required.Always)]
-    public string Type;
-    [JsonProperty(PropertyName = "argument", Required = Required.Always)]
-    public string GameArgument;
-    [JsonProperty(PropertyName = "file", Required = Required.Always)]
-    public RemoteFileDefinition File;
+    [JsonPropertyName("type")]
+    public required string Type;
+    [JsonPropertyName("argument")]
+    public required string GameArgument;
+    [JsonPropertyName("file")]
+    public required RemoteFileDefinition File;
 }
 public class RemoteFileDefinition
 {
-    [JsonProperty(PropertyName = "url", Required = Required.Default)]
-    public Uri Url;
-    [JsonProperty(PropertyName = "sha1", Required = Required.Default)]
-    public string SHA1;
-    [JsonProperty(PropertyName = "hash", Required = Required.Default)]
-    public string Hash;
-    [JsonProperty(PropertyName = "path", Required = Required.Default)]
-    public string Path;
-    [JsonProperty(PropertyName = "size", Required = Required.Default)]
-    public int Size;
+    [JsonPropertyName("url")]
+    public Uri? Url;
+    [JsonPropertyName("sha1")]
+    public string? SHA1;
+    [JsonPropertyName("hash")]
+    public string? Hash;
+    [JsonPropertyName("path")]
+    public string? Path;
+    [JsonPropertyName("size")]
+    public int Size = 0;
 }

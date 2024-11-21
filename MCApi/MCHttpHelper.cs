@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
-using Newtonsoft.Json;
+using System.Text.Json;
+using MCApi.Utils;
 
 namespace MCApi;
 
@@ -19,10 +20,8 @@ public static class MCHttpHelper
     
     private static T Deserialize<T>(Stream s)
     {
-        JsonSerializer js = new JsonSerializer();
-        using (StreamReader sr = new StreamReader(s))
-        using (JsonTextReader jr = new JsonTextReader(sr))
-            return js.Deserialize<T>(jr);
+        // yeah this will definitely not be null trust me bro
+        return JsonSerializer.Deserialize<T>(s, CommonJsonOptions.Options)!;
     }
     #region GET
     public static Task<T> Get<T>(string url) => Get<T>(new Uri(url));

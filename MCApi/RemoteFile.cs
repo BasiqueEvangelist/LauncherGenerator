@@ -101,7 +101,7 @@ public class DescribedRemoteFile : RemoteFile
     public DescribedRemoteFile(RemoteFileDefinition def)
     {
         DescribedBy = def;
-        if (def.Size != default(int))
+        if (def.Size != default)
         {
             size = def.Size;
         }
