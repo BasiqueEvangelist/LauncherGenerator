@@ -29,6 +29,7 @@ public static class GCLogic
         {
             string filename = Path.GetFileNameWithoutExtension(path);
             string ext = Path.GetExtension(path);
+            
             if (ext == ".bat" || ext == ".sh")
                 if (!targets.Any(x => x.Name == filename))
                 {
@@ -46,6 +47,7 @@ public static class GCLogic
             .Select(x => x.Value)
             .Distinct()
             .ToArray();
+        
         foreach (string path in WalkDirectory("data/libraries"))
         {
             if (!libsDownloaded.Any(x => Path.Combine("data", "libraries", x.LibraryPath) == path))

@@ -20,6 +20,6 @@ public class QuiltTransformer : ITargetTransformer
         
         File.Open($"data/versions/{newVid}/{newVid}.jar", FileMode.Create, FileAccess.Write, FileShare.ReadWrite).Dispose();
 
-        return new TransformedTarget { From = from, VersionID = newVid };
+        return new TransformedTarget(from, newVid);
     }
 }

@@ -5,11 +5,7 @@ public interface ITargetTransformer
     Task<TransformedTarget> Transform(Target from);
 }
 
-public struct TransformedTarget
-{
-    public Target From;
-    public string VersionID;
-}
+public record struct TransformedTarget(Target From, string VersionId);
 
 public class AllTransformer : ITargetTransformer
 {
@@ -25,7 +21,7 @@ public class AllTransformer : ITargetTransformer
             case "quilt":
                 return await quilt.Transform(from);
             case "none":
-                return new TransformedTarget { From = from, VersionID = from.VersionID };
+                return new TransformedTarget { From = from, VersionId = from.VersionID };
             default:
                 {
                     Log.Error("Invalid transformer " + from.Transformer);

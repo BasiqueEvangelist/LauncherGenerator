@@ -103,7 +103,7 @@ public static class BuildLogic
     {
         foreach (var t in tv)
         {
-            MCVersion v = downloader.GetRemoteVersion(t.VersionID);
+            MCVersion v = downloader.GetRemoteVersion(t.VersionId);
             VersionManifest vm = await v.GetManifest();
             var argBuilder = new CommandLineArgumentBuilder();
             argBuilder.Add(vm.JavaArguments);
@@ -120,7 +120,7 @@ public static class BuildLogic
             Dictionary<string, string> variables = new Dictionary<string, string>
             {
                 ["auth_player_name"] = "@USERNAME",
-                ["version_name"] = t.VersionID,
+                ["version_name"] = t.VersionId,
                 ["game_directory"] = ".",
                 ["assets_root"] = "../../assets",
                 ["game_assets"] = "../../assets" + (ai.IsVirtual ? "/virtual/" + vm.AssetGroup.ID : ""),
@@ -130,7 +130,7 @@ public static class BuildLogic
                 ["user_type"] = "mojang",
                 ["version_type"] = v.Type.ToString(),
                 ["classpath"] = Classpath(vm),
-                ["natives_directory"] = "../../versions/" + t.VersionID + "/natives",
+                ["natives_directory"] = "../../versions/" + t.VersionId + "/natives",
                 ["launcher_name"] = "LauncherGenerator",
                 ["launcher_version"] = "0.1a",
                 ["path"] = vm.LoggingSettings.ContainsKey("client") ? "../../assets/log_configs/" + ((RemoteFile)vm.LoggingSettings["client"].File).Name : ""
@@ -142,13 +142,13 @@ public static class BuildLogic
             {
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
-                    sw.WriteLine("title Minecraft " + t.VersionID + " launch script");
+                    sw.WriteLine("title Minecraft " + t.VersionId + " launch script");
                     sw.WriteLine("cd %~dp0");
                 }
                 else
                 {
                     sw.WriteLine("#!/bin/sh");
-                    sw.WriteLine("printf \"\\033]0;Minecraft " + t.VersionID + " launch script\\007\"");
+                    sw.WriteLine("printf \"\\033]0;Minecraft " + t.VersionId + " launch script\\007\"");
                     sw.WriteLine("cd $(cd `dirname $0` && pwd)");
                 }
                 sw.WriteLine("cd profiles/" + t.From.Profile);

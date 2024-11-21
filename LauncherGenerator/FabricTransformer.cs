@@ -20,6 +20,6 @@ public class FabricTransformer : ITargetTransformer
             
         await File.Open($"data/versions/{newVid}/{newVid}.jar", FileMode.Create, FileAccess.Write, FileShare.ReadWrite).DisposeAsync();
 
-        return new TransformedTarget { From = from, VersionID = newVid };
+        return new TransformedTarget(from, newVid);
     }
 }
