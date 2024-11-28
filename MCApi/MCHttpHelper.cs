@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using MCApi.Utils;
@@ -17,9 +18,14 @@ public static class MCHttpHelper
         });
         Client.DefaultRequestHeaders.Add("User-Agent", "MCApi/0.1a");
     }
-    
+
     private static T Deserialize<T>(Stream s)
     {
+        var prev = s.Position;
+        using var reader = new StreamReader(s);
+        var str = reader.ReadToEnd();
+        Debug.WriteLine(str);
+        s.Position = prev;
         // yeah this will definitely not be null trust me bro
         return JsonSerializer.Deserialize<T>(s, CommonJsonOptions.Options)!;
     }
