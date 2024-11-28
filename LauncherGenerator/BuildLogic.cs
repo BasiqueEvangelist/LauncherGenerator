@@ -1,5 +1,4 @@
 using LauncherGenerator.Utils;
-using Mono.Unix;
 using System.Text.Json.Nodes;
 
 namespace LauncherGenerator;
@@ -160,10 +159,10 @@ public static class BuildLogic
 #endif
             }
             Log.FileNew(fname);
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            if (!OperatingSystem.IsWindows())
             {
-                UnixFileInfo ufi = new UnixFileInfo(fname);
-                ufi.FileAccessPermissions |= FileAccessPermissions.UserExecute | FileAccessPermissions.GroupRead | FileAccessPermissions.OtherExecute;
+                var finfo = new FileInfo(fname);
+                finfo.UnixFileMode = UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.OtherExecute;
             }
         }
 
