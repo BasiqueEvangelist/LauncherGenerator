@@ -163,10 +163,7 @@ public static class BuildLogic
             }
         }
 
-        var assembly = typeof(Program).Assembly;
-        using (Stream jarIn = assembly.GetManifestResourceStream("LauncherGenerator.MCAuthHelper.jar") ?? throw new NotImplementedException())
-        using (FileStream jarOut = File.Open("data/MCAuthHelper.jar", FileMode.Create, FileAccess.Write, FileShare.Delete))
-            await jarIn.CopyToAsync(jarOut);
+        await Resources.ExtractEmbeddedFile("LauncherGenerator.MCAuthHelper.jar", "data/MCAuthHelper.jar");
     }
 
     public static async Task WriteLauncherProfiles()

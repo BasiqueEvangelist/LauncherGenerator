@@ -1,4 +1,5 @@
 ﻿using IniParser;
+using LauncherGenerator.Utils;
 
 namespace LauncherGenerator;
 
@@ -6,14 +7,12 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        if (!File.Exists("mc.ini"))
+        var configPath = "mc.ini";
+        if (!File.Exists(configPath))
         {
-            var assembly = typeof(Program).Assembly;
-            using (Stream exampleIn = assembly.GetManifestResourceStream("LauncherGenerator.mc-example.ini") ?? throw new NotImplementedException())
-            using (FileStream exampleOut = File.OpenWrite("mc.ini"))
-                await exampleIn.CopyToAsync(exampleOut);
+            await Resources.ExtractEmbeddedFile("mc-example.ini", configPath);
         }
-        Config cfg = new Config(new FileIniDataParser().ReadFile("mc.ini", Encoding.UTF8));
+        Config cfg = new Config(new FileIniDataParser().ReadFile(configPath, Encoding.UTF8));
         if (cfg.IsStub)
         {
             Log.Error("Please edit config");
