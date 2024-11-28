@@ -4,8 +4,8 @@ namespace MCApi.Fabric;
 
 public class LoaderVersion
 {
-    [JsonPropertyName("seperator")]
-    public required string Seperator;
+    [JsonPropertyName("separator")]
+    public required string Separator;
     [JsonPropertyName("build")]
     public required int Build;
     [JsonPropertyName("maven")]
