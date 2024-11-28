@@ -20,7 +20,7 @@ public class VersionManifest
     public Uri Url => DescribedBy.Url;
     public DateTime Time => DescribedBy.Time;
     public DateTime ReleaseTime => DescribedBy.ReleaseTime;
-    public int MinimumLauncherVersion => DescribedBy.MinimumLauncherVersion;
+    public int? MinimumLauncherVersion => DescribedBy.MinimumLauncherVersion;
     public string MainClass => DescribedBy.MainClass;
     public Dictionary<string, LoggingSetup> LoggingSettings => DescribedBy.LoggingSettings == null ? new Dictionary<string, LoggingSetup>() : DescribedBy.LoggingSettings.ToDictionary(x => x.Key, x => new LoggingSetup(x.Value));
     public AssetGroup AssetGroup
@@ -87,33 +87,33 @@ public class VersionManifest
         }
     }
 
-    private GameArguments getArguments(string id)
+    private IGameArgument getArguments(string id)
     {
-        GameArguments args = new GameArguments();
+        List<IGameArgument> args = [];
         if (InheritsFrom != null)
-            args += getLoadedVersionManifest(InheritsFrom).getArguments(id);
-        if (DescribedBy.ComplexArguments.ContainsKey(id))
-            args += new GameArguments(DescribedBy.ComplexArguments[id]);
-        if (args.Arguments.Length == 0)
+            args.Add(getLoadedVersionManifest(InheritsFrom).getArguments(id));
+        if (DescribedBy.ComplexArguments?.ContainsKey(id) == true)
+            args.Add(DescribedBy.ComplexArguments[id]);
+        if (args.Count == 0)
             throw new MCDownloadException("Argument type \"" + id + "\" doesn't have any arguments!");
-        return args;
+        return new ListArgument(args);
     }
 
-    public GameArguments MinecraftArguments
+    public IGameArgument MinecraftArguments
     {
         get
         {
-            if (DescribedBy.SimpleArguments != null) return new GameArguments(DescribedBy.SimpleArguments);
+            if (DescribedBy.SimpleArguments != null) return ListArgument.FromBuiltString(DescribedBy.SimpleArguments);
             else if (DescribedBy.ComplexArguments != null) return getArguments("game");
             else throw new MCDownloadException("Manifest doesn't have any arguments");
         }
     }
-    public GameArguments JavaArguments
+    public IGameArgument JavaArguments
     {
         get
         {
             if (DescribedBy.ComplexArguments != null) return getArguments("jvm");
-            else return new GameArguments("-Djava.library.path=${natives_directory} -Dminecraft.launcher.brand=${launcher_name} -Dminecraft.launcher.version=${launcher_version} -cp ${classpath}");
+            else return ListArgument.FromBuiltString("-Djava.library.path=${natives_directory} -Dminecraft.launcher.brand=${launcher_name} -Dminecraft.launcher.version=${launcher_version} -cp ${classpath}");
         }
     }
 
@@ -134,6 +134,6 @@ public class LoggingSetup
     }
 
     public string Type => DescribedBy.Type;
-    public GameArguments GameArgument => new GameArguments(DescribedBy.GameArgument);
+    public IGameArgument GameArgument => new SimpleArgument(DescribedBy.GameArgument);
     public DescribedRemoteFile File => new DescribedRemoteFile(DescribedBy.File);
 }

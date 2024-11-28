@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
-using System.Text.Json.Nodes;
+﻿using System.Data;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace MCApi;
 
@@ -47,7 +48,7 @@ public class VersionManifestDefinition : VersionDefinition
     [JsonPropertyName("minecraftArguments")]
     public string? SimpleArguments;
     [JsonPropertyName("arguments")]
-    public Dictionary<string, List<JsonValue>>? ComplexArguments;
+    public Dictionary<string, IGameArgument>? ComplexArguments;
     [JsonPropertyName("downloads")]
     public Dictionary<string, RemoteFileDefinition>? Downloads;
     [JsonPropertyName("assets")]
@@ -91,6 +92,7 @@ public class LibraryDefinition
     public ExtractBlock? ExtractionSettings;
 }
 
+[JsonConverter(typeof(GameArgumentJsonConverter))]
 public interface IGameArgument;
 
 public class GameArgumentJsonConverter : JsonConverter<IGameArgument>
@@ -99,6 +101,8 @@ public class GameArgumentJsonConverter : JsonConverter<IGameArgument>
     {
         if (reader.TokenType == JsonTokenType.String)
             return new SimpleArgument(reader.GetString()!);
+        if (reader.TokenType == JsonTokenType.StartArray)
+            return new ListArgument(JsonSerializer.Deserialize<List<IGameArgument>>(ref reader, options)!);
 
         return JsonSerializer.Deserialize<ComplexArgument>(ref reader, options);
     }
@@ -131,7 +135,15 @@ public class ComplexArgument : IGameArgument
     public required MCRule[] Rules;
 }
 
-public record class ListArgument (List<IGameArgument> Values) : IGameArgument;
+public record class ListArgument(List<IGameArgument> Values) : IGameArgument
+{
+    public static ListArgument FromBuiltString(string commandline)
+    {
+        var parts = StringExtensions.SplitCommandLine(commandline);
+        var args = parts.Select(s => new SimpleArgument(s) as IGameArgument);
+        return new ListArgument(args.ToList());
+    }
+};
 
 public class MCRule
 {
@@ -158,6 +170,32 @@ public class MCRule
     [JsonPropertyName("features")]
     public Dictionary<string, bool>? RequiredFeatures;
 
+    public bool Active(string[]? features = null)
+    {
+        if (OS != null)
+        {
+            if (OS.Name is string name && name != SystemInfo.CurrentPlatform)
+                return false;
+            if (OS.VersionRegex != null)
+            {
+                if (!new Regex(OS.VersionRegex).IsMatch(Environment.OSVersion.VersionString))
+                    return false;
+            }
+            if (OS.Architecture != null)
+            {
+                if (Environment.Is64BitOperatingSystem && OS.Architecture == "x86")
+                    return false;
+            }
+        }
+
+        if (RequiredFeatures != null)
+        {
+            if (features is null) features = [];
+            if (RequiredFeatures.Any(f => features.Contains(f.Key) != f.Value)) ;
+            return false;
+        }
+        return true;
+    }
 }
 public class AssetGroupDefinition : RemoteFileDefinition
 {

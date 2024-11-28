@@ -1,7 +1,6 @@
-using MCApi.Utils;
+using LauncherGenerator.Utils;
 using Mono.Unix;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Nodes;
 
 namespace LauncherGenerator;
 
@@ -92,7 +91,7 @@ public static class BuildLogic
             .Where(x => x.LoggingSettings.ContainsKey("client"))
             .Select(x => x.LoggingSettings["client"].File)
             .Distinct()
-            .DownloadGenericFiles(x => new string[] { "data/assets/log_configs/" + ((RemoteFile)x).Name },
+            .DownloadGenericFiles(x => ["data/assets/log_configs/" + ((RemoteFile)x).Name],
             (cr, x) =>
             {
                 if (cr)
@@ -106,27 +105,29 @@ public static class BuildLogic
             MCVersion v = downloader.GetRemoteVersion(t.VersionId);
             VersionManifest vm = await v.GetManifest();
             var argBuilder = new CommandLineArgumentBuilder();
-            argBuilder.Add(vm.JavaArguments);
-
-            GameArguments combined = new GameArguments(t.From.JVMArguments)
-                + vm.JavaArguments
+            argBuilder
+                .Append(vm.JavaArguments)
+                .Append(t.From.JVMArguments)
                 //  (vm.LoggingSettings.ContainsKey("client") ? vm.LoggingSettings["client"].GameArgument : new GameArguments("")) +
-                + new GameArguments("me.basiqueevangelist.launchergenerator.authhelper.MinecraftAuthHelper")
-                + new GameArguments(vm.MainClass)
-                + new GameArguments(cfg.Username)
-                + new GameArguments(t.From.NewGameArguments)
-                + vm.MinecraftArguments;
+                // .Append("me.basiqueevangelist.launchergenerator.authhelper.MinecraftAuthHelper")
+                .Append(vm.MainClass)
+                .Append(cfg.Username)
+                .Append(t.From.NewGameArguments)
+                .Append(vm.MinecraftArguments);
             AssetGroupIndex ai = await vm.AssetGroup.GetIndex();
             Dictionary<string, string> variables = new Dictionary<string, string>
             {
                 ["auth_player_name"] = "@USERNAME",
+                ["auth_player_name"] = "Player",
                 ["version_name"] = t.VersionId,
                 ["game_directory"] = ".",
                 ["assets_root"] = "../../assets",
                 ["game_assets"] = "../../assets" + (ai.IsVirtual ? "/virtual/" + vm.AssetGroup.ID : ""),
                 ["assets_index_name"] = vm.AssetGroup.ID,
                 ["auth_uuid"] = "@UUID",
+                ["auth_uuid"] = "00000000-0000-0000-0000-000000000000",
                 ["auth_access_token"] = "@ACCESSTOKEN",
+                ["auth_access_token"] = "0",
                 ["user_type"] = "mojang",
                 ["version_type"] = v.Type.ToString(),
                 ["classpath"] = Classpath(vm),
@@ -135,7 +136,7 @@ public static class BuildLogic
                 ["launcher_version"] = "0.1a",
                 ["path"] = vm.LoggingSettings.ContainsKey("client") ? "../../assets/log_configs/" + ((RemoteFile)vm.LoggingSettings["client"].File).Name : ""
             };
-            string[] cargs = combined.Process(variables, Array.Empty<string>());
+            var cargs = argBuilder.Build(variables, []);
             string fname = "data/" + t.From.Name + (Environment.OSVersion.Platform == PlatformID.Win32NT ? ".bat" : ".sh");
             using (FileStream fs = File.Open(fname, System.IO.FileMode.Create, FileAccess.Write, FileShare.Read))
             using (StreamWriter sw = new StreamWriter(fs))
@@ -152,8 +153,11 @@ public static class BuildLogic
                     sw.WriteLine("cd $(cd `dirname $0` && pwd)");
                 }
                 sw.WriteLine("cd profiles/" + t.From.Profile);
-                sw.WriteLine(t.From.JavaPath.Replace("\\", "\\\\") + " " + GameArguments.FoldArgs(cargs));
-                // sw.WriteLine("pause");
+                sw.WriteLine(t.From.JavaPath.Replace("\\", "\\\\") + " " + cargs);
+
+#if DEBUG
+                sw.WriteLine("pause");
+#endif
             }
             Log.FileNew(fname);
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)
@@ -163,14 +167,16 @@ public static class BuildLogic
             }
         }
 
-        await Resources.ExtractEmbeddedFile("LauncherGenerator.MCAuthHelper.jar", "data/MCAuthHelper.jar");
+        await Resources.ExtractEmbeddedFile("MCAuthHelper.jar", "data/MCAuthHelper.jar");
     }
 
     public static async Task WriteLauncherProfiles()
     {
-        JObject obj = new JObject();
-        obj.Add("_comment", "This is a dummy launcher_profiles.json file. It exists so that Optifine can install successfully.");
-        obj.Add("profiles", new JObject());
+        var  obj = new JsonObject
+        {
+            { "_comment", "This is a dummy launcher_profiles.json file. It exists so that Optifine can install successfully." },
+            { "profiles", new JsonObject() }
+        };
         await File.WriteAllTextAsync("data/launcher_profiles.json", obj.ToString());
         Log.FileNew("data/launcher_profiles.json");
     }
@@ -180,7 +186,7 @@ public static class BuildLogic
         List<string> entr = vm.Libraries.Where(x => x.IsNeeded).SelectMany(x => x.NeededDownloads).Select(x => "../../libraries/" + x.Value.LibraryPath).ToList();
         string jarId = vm.JarFrom?.ID ?? vm.ID;
         entr.Add("../../versions/" + jarId + "/" + jarId + ".jar");
-        entr.Add("../../MCAuthHelper.jar");
+        // entr.Add("../../MCAuthHelper.jar");
         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             return string.Join(";", entr);
         else

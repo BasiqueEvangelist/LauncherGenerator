@@ -69,7 +69,7 @@ public class MCLibrary
             {
                 foreach (var item in classifiers)
                 {
-                    if (IsCurrentPlatform(item.Key))
+                    if (SystemInfo.CurrentNativesPlatform == item.Key)
                         yield return KeyValuePair.Create(item.Key, new DescribedRemoteFile(item.Value));
                 }
             }
@@ -82,15 +82,6 @@ public class MCLibrary
         }
     }
 
-    static bool IsCurrentPlatform(string platformName)
-        => platformName switch
-    {
-        "natives-windows" => OperatingSystem.IsWindows(),
-        "natives-osx" => OperatingSystem.IsMacOS(),
-        "natives-linux" => OperatingSystem.IsLinux(),
-        _ => false
-    };
-
     #endregion
 
     public bool IsNeeded
@@ -100,40 +91,19 @@ public class MCLibrary
             if (DescribedBy.Rules != null)
             {
                 List<MCRule> rulez = DescribedBy.Rules.ToList();
-                rulez.Add(new MCRule() { Action = MCRule.RuleAction.Disallow });
-                foreach (MCRule rule in rulez)
+                var allow = false;
+                foreach (MCRule rule in DescribedBy.Rules)
                 {
-                    if (rule.OS != null)
-                    {
-                        if (rule.OS.Name != null)
-                        {
-                            if (Environment.OSVersion.Platform == PlatformID.Win32NT && rule.OS.Name != "windows")
-                                continue;
-                            if (Environment.OSVersion.Platform == PlatformID.MacOSX && rule.OS.Name != "osx")
-                                continue;
-                            if (Environment.OSVersion.Platform == PlatformID.Unix && rule.OS.Name != "linux")
-                                continue;
-                        }
-                        if (rule.OS.VersionRegex != null)
-                        {
-                            if (!new Regex(rule.OS.VersionRegex).IsMatch(Environment.OSVersion.VersionString))
-                                continue;
-                        }
-                        if (rule.OS.Architecture != null)
-                        {
-                            if (Environment.Is64BitOperatingSystem && rule.OS.Architecture == "x86")
-                                continue;
-                        }
-                    }
+                    if (!rule.Active()) continue;
                     if (rule.Action == MCRule.RuleAction.Allow)
-                        return true;
+                        allow = true;
                     else if (rule.Action == MCRule.RuleAction.Disallow)
-                        return false;
+                        allow = false;
                 }
+                return allow;
             }
             else
                 return true;
-            throw new NotImplementedException("WHAT?!?");
         }
     }
 

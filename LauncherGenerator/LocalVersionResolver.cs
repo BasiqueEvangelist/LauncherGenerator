@@ -18,20 +18,20 @@ public class LocalVersionResolver : IVersionResolver
         return vl;
     }
 
-    public Task<AssetGroupIndexDefinition> GetAssetIndex(AssetGroup id)
+    public async Task<AssetGroupIndexDefinition> GetAssetIndex(AssetGroup id)
     {
         if (File.Exists(Path.Combine("data", "assets", "indexes", id.ID + ".json")))
             using (var fs = File.OpenRead(Path.Combine("data", "assets", "indexes", id.ID + ".json")))
-                return JsonSerializer.DeserializeAsync<AssetGroupIndexDefinition>(fs, CommonJsonOptions.Options).AsTask()!;
+                return await JsonSerializer.DeserializeAsync<AssetGroupIndexDefinition>(fs, CommonJsonOptions.Options);
         
         throw new MCDownloadException("Couldn't find assets in local files");
     }
 
-    public Task<VersionManifestDefinition> GetVersion(MCVersion v)
+    public async Task<VersionManifestDefinition> GetVersion(MCVersion v)
     {
         if (File.Exists(Path.Combine("data", "versions", v.ID, v.ID + ".json")))
             using (var fs = File.OpenRead(Path.Combine("data", "versions", v.ID, v.ID + ".json")))
-                return JsonSerializer.DeserializeAsync<VersionManifestDefinition>(fs, CommonJsonOptions.Options).AsTask()!;
+                return await JsonSerializer.DeserializeAsync<VersionManifestDefinition>(fs, CommonJsonOptions.Options);
         
         throw new MCDownloadException("Couldn't find version in local files");
     }

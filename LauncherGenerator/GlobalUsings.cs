@@ -8,3 +8,4 @@ global using System.Threading.Tasks;
 
 
 global using MCApi;
+global using MCApi.Utils;
