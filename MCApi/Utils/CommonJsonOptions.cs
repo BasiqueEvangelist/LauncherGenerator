@@ -17,6 +17,7 @@ public static class CommonJsonOptions
     static CommonJsonOptions()
     {
         Options.Converters.Add(new DateTimeConverter());
+        Options.Converters.Add(new DateTimeOffsetConverter());
     }
 
     private class DateTimeConverter : JsonConverter<DateTime>
@@ -28,7 +29,27 @@ public static class CommonJsonOptions
 
         public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
+            writer.WriteStringValue($"{value:O}");
+        }
+    }
+
+    private class DateTimeOffsetConverter : JsonConverter<DateTimeOffset>
+    {
+        public override DateTimeOffset Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            try
+            {
+                return DateTimeOffset.Parse(reader.GetString() ?? throw new JsonException());
+            }
+            catch (Exception ex)
+            { 
+                throw; 
+            }
+        }
+
+        public override void Write(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue($"{value:O}");
         }
     }
 }
