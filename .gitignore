@@ -9,6 +9,10 @@ LauncherGenerator/*.sh
 LauncherGenerator/mc.ini
 **/target
 
+
+**/PublishProfiles
+
+
 .gradle
 build
 .idea
